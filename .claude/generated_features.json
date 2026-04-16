@@ -1,0 +1,404 @@
+{
+  "schema_version": "1.0.0",
+  "source": "platxa-research-agent",
+  "research_session": {
+    "id": "research_20260416_235006_b3a5",
+    "query": "Best solution platform for retroreflectivity measurement on national highways - hackathon winning approach: website vs mobile app vs other",
+    "completed_at": "2026-04-17T00:04:10.136362",
+    "sources_analyzed": 13,
+    "quality_score": 9.046153846153846
+  },
+  "summary": "Best solution platform for retroreflectivity measurement on national highways - hackathon winning approach: website vs mobile app vs other",
+  "categories": [
+    {
+      "name": "AI/ML",
+      "count": 2
+    },
+    {
+      "name": "Backend",
+      "count": 4
+    },
+    {
+      "name": "Data Collection",
+      "count": 3
+    },
+    {
+      "name": "Demo",
+      "count": 1
+    },
+    {
+      "name": "Measurement",
+      "count": 5
+    },
+    {
+      "name": "Mobile UI",
+      "count": 2
+    },
+    {
+      "name": "Setup",
+      "count": 2
+    },
+    {
+      "name": "Web Dashboard",
+      "count": 6
+    }
+  ],
+  "features": [
+    {
+      "id": 1,
+      "description": "Flutter mobile app project setup with camera, GPS, and TFLite dependencies",
+      "category": "Setup",
+      "priority": "high",
+      "rationale": "Foundation for entire mobile data collection component",
+      "verification": {
+        "type": "manual",
+        "criteria": "App runs on Android device with camera permission granted"
+      },
+      "research_refs": [
+        "roadmetrics",
+        "flutter_platform"
+      ]
+    },
+    {
+      "id": 2,
+      "description": "YOLOv8n model exported to TFLite format, optimized for road marking detection (FP16 quantization)",
+      "category": "AI/ML",
+      "priority": "high",
+      "rationale": "Core AI for detecting road markings in camera feed",
+      "verification": {
+        "type": "automated",
+        "criteria": "Model detects white/yellow lane markings at >80% confidence in test images"
+      },
+      "research_refs": [
+        "yolov8_tflite",
+        "road_marking_detection"
+      ]
+    },
+    {
+      "id": 3,
+      "description": "Real-time camera feed processing with YOLOv8n TFLite running at \u226515 FPS on device",
+      "category": "AI/ML",
+      "priority": "high",
+      "rationale": "On-device detection eliminates latency and works offline",
+      "verification": {
+        "type": "manual",
+        "criteria": "Bounding boxes drawn around lane markings in live preview without lag"
+      },
+      "research_refs": [
+        "mobile_edge_ai"
+      ]
+    },
+    {
+      "id": 4,
+      "description": "LED flash controller module that strobes at configurable frequency (40Hz default) synchronized with camera capture frames",
+      "category": "Measurement",
+      "priority": "high",
+      "rationale": "Flash provides controlled illumination to isolate retroreflective signal",
+      "verification": {
+        "type": "manual",
+        "criteria": "Flash fires on every other frame; illuminated vs non-illuminated frame pairs captured"
+      },
+      "research_refs": [
+        "retrotek_synchronized_flash",
+        "hdr_measurement"
+      ]
+    },
+    {
+      "id": 5,
+      "description": "Luminance measurement algorithm: extract pixel brightness in detected marking ROI from illuminated frame, subtract ambient from non-illuminated frame",
+      "category": "Measurement",
+      "priority": "high",
+      "rationale": "Core retroreflectivity estimation using camera as photometer",
+      "verification": {
+        "type": "automated",
+        "criteria": "Delta luminance value computed per marking detection; correlates with known reflectivity reference"
+      },
+      "research_refs": [
+        "oecf_calibration",
+        "smartphone_lux_meter"
+      ]
+    },
+    {
+      "id": 6,
+      "description": "OECF camera calibration module: map grayscale pixel values to luminance (cd/m\u00b2) using pre-captured calibration chart",
+      "category": "Measurement",
+      "priority": "high",
+      "rationale": "Required to convert camera output to physically meaningful retroreflectivity units",
+      "verification": {
+        "type": "manual",
+        "criteria": "Calibration coefficients stored; pixel-to-cd/m\u00b2 conversion tested against reference"
+      },
+      "research_refs": [
+        "oecf_calibration_paper"
+      ]
+    },
+    {
+      "id": 7,
+      "description": "RL score computation: convert luminance delta to Coefficient of Retroreflected Luminance (RL) in mcd/m\u00b2/lux using vehicle geometry constants",
+      "category": "Measurement",
+      "priority": "high",
+      "rationale": "Produces standard RL metric comparable to handheld retroreflectometers",
+      "verification": {
+        "type": "automated",
+        "criteria": "RL values in plausible range (0-4000 mcd/m\u00b2/lux) for test markings"
+      },
+      "research_refs": [
+        "rl_measurement_standard",
+        "30m_geometry"
+      ]
+    },
+    {
+      "id": 8,
+      "description": "Safety rating classifier: SAFE (>100 mcd/m\u00b2/lux, green), WARNING (54-100, yellow), CRITICAL (<54, red) based on validated thresholds",
+      "category": "Measurement",
+      "priority": "high",
+      "rationale": "Thresholds from peer-reviewed research; gives actionable PASS/FAIL output",
+      "verification": {
+        "type": "automated",
+        "criteria": "Correct color label assigned for each RL value in unit tests"
+      },
+      "research_refs": [
+        "rl_thresholds_machine_vision"
+      ]
+    },
+    {
+      "id": 9,
+      "description": "GPS location tagging: attach lat/lng/altitude/speed/timestamp to each retroreflectivity measurement at sampling rate of 1Hz",
+      "category": "Data Collection",
+      "priority": "high",
+      "rationale": "GPS enables precise spatial mapping of highway segment conditions",
+      "verification": {
+        "type": "manual",
+        "criteria": "Each measurement record contains valid GPS coordinates; accuracy within 5 meters"
+      },
+      "research_refs": [
+        "gps_tracking_field_tools"
+      ]
+    },
+    {
+      "id": 10,
+      "description": "Offline-first data storage: SQLite local database stores all measurements when no connectivity, auto-sync on connection restore",
+      "category": "Data Collection",
+      "priority": "high",
+      "rationale": "Critical for rural highway sections with poor connectivity",
+      "verification": {
+        "type": "manual",
+        "criteria": "Measurements captured in airplane mode; successfully synced after re-enabling WiFi"
+      },
+      "research_refs": [
+        "field_data_collection_offline"
+      ]
+    },
+    {
+      "id": 11,
+      "description": "Survey session management: start/stop survey, session metadata (vehicle ID, surveyor, date, highway number), session list view",
+      "category": "Mobile UI",
+      "priority": "high",
+      "rationale": "Organizes data by highway section for structured analysis",
+      "verification": {
+        "type": "manual",
+        "criteria": "User can start a named session, drive, stop, and see session in history"
+      },
+      "research_refs": [
+        "roadmetrics_workflow"
+      ]
+    },
+    {
+      "id": 12,
+      "description": "Live measurement overlay UI: camera preview with bounding boxes, real-time RL value, color-coded status indicator, GPS lock indicator",
+      "category": "Mobile UI",
+      "priority": "high",
+      "rationale": "Gives driver/surveyor immediate feedback on road condition",
+      "verification": {
+        "type": "manual",
+        "criteria": "Dashboard shows green/yellow/red status in real-time as driving"
+      },
+      "research_refs": [
+        "mobile_inspection_apps"
+      ]
+    },
+    {
+      "id": 13,
+      "description": "Data upload API client: batch upload measurement records to FastAPI backend with retry logic and compression",
+      "category": "Data Collection",
+      "priority": "high",
+      "rationale": "Moves data from phone to server for central analysis",
+      "verification": {
+        "type": "automated",
+        "criteria": "1000 measurement records upload in <30 seconds on WiFi"
+      },
+      "research_refs": [
+        "cloud_upload_pattern"
+      ]
+    },
+    {
+      "id": 14,
+      "description": "FastAPI backend: REST endpoints for measurement ingestion, segment aggregation, alert generation, and data export",
+      "category": "Backend",
+      "priority": "high",
+      "rationale": "Central data processing and storage layer",
+      "verification": {
+        "type": "automated",
+        "criteria": "POST /measurements, GET /segments/{highway_id}, GET /alerts all return correct data"
+      },
+      "research_refs": [
+        "roadmetrics_backend"
+      ]
+    },
+    {
+      "id": 15,
+      "description": "PostgreSQL + PostGIS database schema: measurements table with geospatial columns, highway_segments table, alerts table",
+      "category": "Backend",
+      "priority": "high",
+      "rationale": "PostGIS enables efficient spatial queries for map visualization",
+      "verification": {
+        "type": "automated",
+        "criteria": "Spatial queries return segments within bounding box; indexes on coordinates"
+      },
+      "research_refs": [
+        "gis_data_model"
+      ]
+    },
+    {
+      "id": 16,
+      "description": "Highway segment aggregation: compute average RL, min RL, max RL, and dominant safety rating for each 100-meter highway segment from raw measurements",
+      "category": "Backend",
+      "priority": "high",
+      "rationale": "Aggregation makes individual point measurements into actionable segment-level insights",
+      "verification": {
+        "type": "automated",
+        "criteria": "Segment stats match manual calculation of test dataset"
+      },
+      "research_refs": [
+        "road_condition_rating"
+      ]
+    },
+    {
+      "id": 17,
+      "description": "Real-time alert engine: trigger CRITICAL alert when any segment drops below 54 mcd/m\u00b2/lux; WARNING at 54-100; store alert with GPS coordinates and timestamp",
+      "category": "Backend",
+      "priority": "high",
+      "rationale": "Enables proactive maintenance scheduling before accidents occur",
+      "verification": {
+        "type": "automated",
+        "criteria": "Alert created within 5 seconds of critical measurement received"
+      },
+      "research_refs": [
+        "rl_thresholds_machine_vision"
+      ]
+    },
+    {
+      "id": 18,
+      "description": "Next.js web dashboard project setup with Mapbox GL JS, deck.gl, Tailwind CSS, and ShadcnUI",
+      "category": "Setup",
+      "priority": "high",
+      "rationale": "Foundation for the analytics visualization layer",
+      "verification": {
+        "type": "manual",
+        "criteria": "Dashboard loads with Mapbox satellite map of India centered on Delhi"
+      },
+      "research_refs": [
+        "mapbox_deckgl_visualization"
+      ]
+    },
+    {
+      "id": 19,
+      "description": "Interactive highway map with deck.gl PathLayer: color-code highway segments green/yellow/red based on retroreflectivity score",
+      "category": "Web Dashboard",
+      "priority": "high",
+      "rationale": "Core visual output \u2014 judges see the entire highway network health at a glance",
+      "verification": {
+        "type": "manual",
+        "criteria": "Highway segments visible on map with correct colors; hover shows RL value"
+      },
+      "research_refs": [
+        "deckgl_path_layer",
+        "mapbox_heatmap"
+      ]
+    },
+    {
+      "id": 20,
+      "description": "Retroreflectivity heatmap layer: density heatmap showing concentration of critical/warning zones across highway network",
+      "category": "Web Dashboard",
+      "priority": "high",
+      "rationale": "Visually compelling for hackathon demo; shows problem at network scale",
+      "verification": {
+        "type": "manual",
+        "criteria": "Heatmap renders at 60fps while panning/zooming; red clusters in critical zones"
+      },
+      "research_refs": [
+        "mapbox_heatmap_layer"
+      ]
+    },
+    {
+      "id": 21,
+      "description": "Segment detail panel: click any segment to see RL history chart, photo evidence, measurement timestamps, and maintenance recommendation",
+      "category": "Web Dashboard",
+      "priority": "high",
+      "rationale": "Gives highway authority actionable data for maintenance decisions",
+      "verification": {
+        "type": "manual",
+        "criteria": "Clicking segment opens panel with chart showing RL values over last 7 days"
+      },
+      "research_refs": [
+        "highway_authority_needs"
+      ]
+    },
+    {
+      "id": 22,
+      "description": "Critical alerts feed: real-time list of segments below safe threshold, sortable by severity and location, with one-click navigation on map",
+      "category": "Web Dashboard",
+      "priority": "high",
+      "rationale": "Enables rapid response to dangerous highway sections",
+      "verification": {
+        "type": "manual",
+        "criteria": "Alert list updates in real-time; clicking alert flies map to that segment"
+      },
+      "research_refs": [
+        "alert_system_design"
+      ]
+    },
+    {
+      "id": 23,
+      "description": "Summary statistics panel: total km surveyed, % safe/warning/critical, average RL across network, segments improved this month",
+      "category": "Web Dashboard",
+      "priority": "medium",
+      "rationale": "KPI overview for highway authority management reporting",
+      "verification": {
+        "type": "manual",
+        "criteria": "Numbers update correctly as new measurements added"
+      },
+      "research_refs": [
+        "highway_authority_dashboard"
+      ]
+    },
+    {
+      "id": 24,
+      "description": "CSV/PDF report export: generate maintenance priority report per highway section with GPS coordinates, RL values, photos, and recommended action",
+      "category": "Web Dashboard",
+      "priority": "medium",
+      "rationale": "Makes findings actionable for field maintenance crews",
+      "verification": {
+        "type": "manual",
+        "criteria": "PDF downloads with proper table of segments sorted by RL severity"
+      },
+      "research_refs": [
+        "highway_reporting_needs"
+      ]
+    },
+    {
+      "id": 25,
+      "description": "Demo data generator: seed database with realistic simulated measurement data for NH-48 (Delhi-Mumbai) to showcase full dashboard in hackathon demo",
+      "category": "Demo",
+      "priority": "high",
+      "rationale": "Essential for compelling live demo without needing actual survey data",
+      "verification": {
+        "type": "manual",
+        "criteria": "Dashboard shows realistic distribution of green/yellow/red segments on NH-48"
+      },
+      "research_refs": [
+        "hackathon_demo_strategy"
+      ]
+    }
+  ]
+}
