@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>CFBundleDisplayName</key>
+	<string>ReflectScan</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>reflectscan</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>$(FLUTTER_BUILD_NAME)</string>
+	<key>CFBundleSignature</key>
+	<string>????</string>
+	<key>CFBundleVersion</key>
+	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<key>LSRequiresIPhoneOS</key>
+	<true/>
+	<key>UILaunchStoryboardName</key>
+	<string>LaunchScreen</string>
+	<key>UIMainStoryboardFile</key>
+	<string>Main</string>
+	<key>UISupportedInterfaceOrientations</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+	<key>UIViewControllerBasedStatusBarAppearance</key>
+	<false/>
+
+	<!-- Camera for YOLOv8 detection + luminance measurement -->
+	<key>NSCameraUsageDescription</key>
+	<string>ReflectScan uses the camera to detect road markings and measure retroreflectivity while driving.</string>
+
+	<!-- GPS tagging per measurement -->
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>ReflectScan records your GPS position so each retroreflectivity measurement can be mapped to a highway segment.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>ReflectScan records your GPS position so each retroreflectivity measurement can be mapped to a highway segment. Background access keeps tracking while driving.</string>
+
+	<!-- Motion for vehicle speed + orientation (used by Geolocator on iOS) -->
+	<key>NSMotionUsageDescription</key>
+	<string>ReflectScan uses motion data to refine vehicle speed and measurement geometry.</string>
+
+	<!-- Keep tracking while mounted on windshield -->
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>location</string>
+		<string>fetch</string>
+	</array>
+
+	<!-- Minimum iOS version required by tflite_flutter -->
+	<key>MinimumOSVersion</key>
+	<string>13.0</string>
+</dict>
+</plist>
