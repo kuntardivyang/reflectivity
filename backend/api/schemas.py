@@ -66,8 +66,7 @@ class AlertOut(BaseModel):
     lng:          Optional[float]
     triggered_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = {"from_attributes": True}
 
 
 class StatsOut(BaseModel):
