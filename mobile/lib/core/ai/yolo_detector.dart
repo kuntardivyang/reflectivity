@@ -1,5 +1,4 @@
 import 'dart:math' as math;
-import 'dart:typed_data';
 
 import 'package:camera/camera.dart';
 import 'package:image/image.dart' as img;
@@ -54,11 +53,16 @@ class YoloDetector {
   List<Detection> detect(CameraImage frame) {
     if (!_loaded) return const [];
     if (_fallbackMode || _interpreter == null) {
-      final w = frame.width.toDouble();
-      final h = frame.height.toDouble();
+      final w = frame.width;
+      final h = frame.height;
       return [
         Detection(
-          box: RoiBox(w * 0.35, h * 0.55, w * 0.30, h * 0.30),
+          box: RoiBox(
+            (w * 0.35).round(),
+            (h * 0.55).round(),
+            (w * 0.30).round(),
+            (h * 0.30).round(),
+          ),
           confidence: 0.5,
           classId: 0,
         ),

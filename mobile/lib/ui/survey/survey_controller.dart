@@ -97,6 +97,14 @@ class SurveyController extends StateNotifier<SurveyState> {
         _api = api,
         super(const SurveyState());
 
+  /// True once [start] has been called and the detector reported that the
+  /// TFLite asset is missing. Used by the UI to show a DEMO MODE banner.
+  bool get detectorFallbackMode => _detector.fallbackMode;
+
+  /// Local DB accessor so other screens (e.g. history) can read sessions
+  /// without constructing a second LocalDatabase instance.
+  LocalDatabase get localDb => _db;
+
   Future<void> start({
     String? vehicleId,
     String? surveyor,

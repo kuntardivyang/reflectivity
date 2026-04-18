@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/measurement/safety_classifier.dart';
+import '../../core/utils/formatters.dart';
+import '../../core/utils/permission_gate.dart';
+import '../history/history_screen.dart';
 import 'detection_painter.dart';
 import 'survey_controller.dart';
 
@@ -16,6 +19,7 @@ class SurveyScreen extends ConsumerStatefulWidget {
 class _SurveyScreenState extends ConsumerState<SurveyScreen> {
   CameraController? _camera;
   bool _cameraReady = false;
+  String? _initError;
 
   @override
   void initState() {
@@ -24,27 +28,41 @@ class _SurveyScreenState extends ConsumerState<SurveyScreen> {
   }
 
   Future<void> _initCamera() async {
-    final cameras = await availableCameras();
-    if (cameras.isEmpty) return;
-    final rear = cameras.firstWhere(
-      (c) => c.lensDirection == CameraLensDirection.back,
-      orElse: () => cameras.first,
-    );
-    final controller = CameraController(
-      rear,
-      ResolutionPreset.high,
-      enableAudio: false,
-      imageFormatGroup: ImageFormatGroup.yuv420,
-    );
-    await controller.initialize();
-    await controller.startImageStream((frame) {
-      ref.read(surveyControllerProvider.notifier).onFrame(frame);
-    });
-    if (!mounted) return;
-    setState(() {
-      _camera = controller;
-      _cameraReady = true;
-    });
+    final permissionError =
+        await const PermissionGate().requestSurveyPermissions();
+    if (permissionError != null) {
+      if (mounted) setState(() => _initError = permissionError);
+      return;
+    }
+
+    try {
+      final cameras = await availableCameras();
+      if (cameras.isEmpty) {
+        if (mounted) setState(() => _initError = 'No camera available on this device.');
+        return;
+      }
+      final rear = cameras.firstWhere(
+        (c) => c.lensDirection == CameraLensDirection.back,
+        orElse: () => cameras.first,
+      );
+      final controller = CameraController(
+        rear,
+        ResolutionPreset.high,
+        enableAudio: false,
+        imageFormatGroup: ImageFormatGroup.yuv420,
+      );
+      await controller.initialize();
+      await controller.startImageStream((frame) {
+        ref.read(surveyControllerProvider.notifier).onFrame(frame);
+      });
+      if (!mounted) return;
+      setState(() {
+        _camera = controller;
+        _cameraReady = true;
+      });
+    } catch (e) {
+      if (mounted) setState(() => _initError = 'Camera init failed: $e');
+    }
   }
 
   @override
@@ -56,6 +74,9 @@ class _SurveyScreenState extends ConsumerState<SurveyScreen> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(surveyControllerProvider);
+    final detectorFallback = ref
+        .watch(surveyControllerProvider.notifier)
+        .detectorFallbackMode;
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -63,7 +84,9 @@ class _SurveyScreenState extends ConsumerState<SurveyScreen> {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            if (_cameraReady && _camera != null)
+            if (_initError != null)
+              _InitErrorView(message: _initError!)
+            else if (_cameraReady && _camera != null)
               LayoutBuilder(
                 builder: (context, cons) {
                   final preview = _camera!.value.previewSize;
@@ -87,20 +110,106 @@ class _SurveyScreenState extends ConsumerState<SurveyScreen> {
             else
               const Center(child: CircularProgressIndicator()),
 
-            // Status HUD at top
+            if (detectorFallback)
+              const Positioned(
+                top: 8,
+                left: 0,
+                right: 0,
+                child: _DemoModeBanner(),
+              ),
+
             Positioned(
-              top: 16,
+              top: detectorFallback ? 48 : 16,
               left: 16,
               right: 16,
               child: _StatusHud(state: state),
             ),
 
-            // Control bar at bottom
+            Positioned(
+              top: detectorFallback ? 48 : 16,
+              right: 16,
+              child: IconButton.filledTonal(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const HistoryScreen()),
+                  );
+                },
+                icon: const Icon(Icons.history),
+                tooltip: 'Session history',
+              ),
+            ),
+
             Positioned(
               bottom: 24,
               left: 16,
               right: 16,
               child: _ControlBar(state: state),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _DemoModeBanner extends StatelessWidget {
+  const _DemoModeBanner();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.amber.withValues(alpha: 0.9),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: const Row(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.warning_amber_rounded, size: 16, color: Colors.black87),
+          SizedBox(width: 6),
+          Text(
+            'DEMO MODE — TFLite model missing, using fixed ROI',
+            style: TextStyle(
+              color: Colors.black87,
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _InitErrorView extends StatelessWidget {
+  final String message;
+  const _InitErrorView({required this.message});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.block, color: Colors.redAccent, size: 64),
+            const SizedBox(height: 16),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: Colors.white, fontSize: 16),
+            ),
+            const SizedBox(height: 24),
+            FilledButton(
+              onPressed: () {
+                // Trigger a rebuild → parent reinvokes _initCamera on next frame.
+                (context as Element).markNeedsBuild();
+              },
+              child: const Text('Retry'),
             ),
           ],
         ),
@@ -145,9 +254,7 @@ class _StatusHud extends StatelessWidget {
               ),
               const Spacer(),
               Text(
-                state.lastRl != null
-                    ? '${state.lastRl!.toStringAsFixed(0)} mcd/m²/lx'
-                    : '— mcd/m²/lx',
+                formatRl(state.lastRl),
                 style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.w600,
@@ -163,8 +270,7 @@ class _StatusHud extends StatelessWidget {
                 icon: Icons.gps_fixed,
                 label: state.lastSample == null
                     ? 'No GPS'
-                    : '${state.lastSample!.lat.toStringAsFixed(4)}, '
-                      '${state.lastSample!.lng.toStringAsFixed(4)}',
+                    : formatLatLng(state.lastSample!.lat, state.lastSample!.lng),
                 good: state.lastSample != null,
               ),
               const SizedBox(width: 8),
