@@ -34,7 +34,7 @@ class FlashController {
   Future<void> start() async {
     if (_disposed || _timer != null) return;
 
-    final halfPeriodMicros = (1_000_000 / (hz * 2)).round();
+    final halfPeriodMicros = (1000000 / (hz * 2)).round();
     _timer = Timer.periodic(
       Duration(microseconds: halfPeriodMicros),
       (_) => _toggle(),
