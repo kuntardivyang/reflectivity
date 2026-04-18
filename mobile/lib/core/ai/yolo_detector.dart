@@ -30,23 +30,45 @@ class YoloDetector {
   static const double confThreshold = 0.35;
   static const double iouThreshold = 0.45;
 
-  late final Interpreter _interpreter;
+  Interpreter? _interpreter;
   bool _loaded = false;
+  bool _fallbackMode = false;
+
+  /// True when the model failed to load and [detect] is returning a
+  /// fixed center ROI instead of running inference. Lets the UI show a
+  /// "MODEL MISSING" banner while the rest of the pipeline still works.
+  bool get fallbackMode => _fallbackMode;
 
   Future<void> load({String assetPath = 'assets/models/yolov8n.tflite'}) async {
     if (_loaded) return;
-    _interpreter = await Interpreter.fromAsset(assetPath);
-    _loaded = true;
+    try {
+      _interpreter = await Interpreter.fromAsset(assetPath);
+      _loaded = true;
+    } catch (_) {
+      _loaded = true;
+      _fallbackMode = true;
+    }
   }
 
   /// Run inference on a YUV420 camera frame. Returns surviving detections.
   List<Detection> detect(CameraImage frame) {
     if (!_loaded) return const [];
+    if (_fallbackMode || _interpreter == null) {
+      final w = frame.width.toDouble();
+      final h = frame.height.toDouble();
+      return [
+        Detection(
+          box: RoiBox(w * 0.35, h * 0.55, w * 0.30, h * 0.30),
+          confidence: 0.5,
+          classId: 0,
+        ),
+      ];
+    }
 
     final input = _preprocess(frame);
     final output = List.filled(1 * (4 + numClasses) * 8400, 0.0)
         .reshape([1, 4 + numClasses, 8400]);
-    _interpreter.run(input, output);
+    _interpreter!.run(input, output);
     return _postprocess(output, frame.width, frame.height);
   }
 
@@ -167,6 +189,6 @@ class YoloDetector {
   }
 
   void dispose() {
-    if (_loaded) _interpreter.close();
+    if (_loaded) _interpreter?.close();
   }
 }
