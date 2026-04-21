@@ -26,23 +26,32 @@ class LuminanceAnalyzer {
 
   /// Mean luminance (cd/m²) of the ROI in a YUV420 [frame].
   double meanLuminance(CameraImage frame, RoiBox roi) {
+    final samples = samplePixels(frame, roi);
+    if (samples.isEmpty) return 0;
+    return calibrator.meanLuminance(samples);
+  }
+
+  /// Raw Y-plane byte samples inside [roi]. Used by detectors that need
+  /// to compute per-ROI stats without going through the OECF conversion
+  /// (e.g. brightest-patch search).
+  List<int> samplePixels(CameraImage frame, RoiBox roi) {
     final yPlane = frame.planes[0];
     final bytes = yPlane.bytes;
     final rowStride = yPlane.bytesPerRow;
 
     final samples = <int>[];
+    final xStart = roi.x.clamp(0, frame.width);
+    final yStart = roi.y.clamp(0, frame.height);
     final xEnd = (roi.x + roi.width).clamp(0, frame.width);
     final yEnd = (roi.y + roi.height).clamp(0, frame.height);
 
-    for (int row = roi.y; row < yEnd; row++) {
+    for (int row = yStart; row < yEnd; row++) {
       final rowStart = row * rowStride;
-      for (int col = roi.x; col < xEnd; col++) {
+      for (int col = xStart; col < xEnd; col++) {
         samples.add(bytes[rowStart + col]);
       }
     }
-
-    if (samples.isEmpty) return 0;
-    return calibrator.meanLuminance(samples);
+    return samples;
   }
 
   /// Luminance delta (illuminated frame minus ambient frame) for the same ROI.

@@ -264,22 +264,27 @@ class _StatusHud extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 10),
-          Row(
+          Wrap(
+            spacing: 8,
+            runSpacing: 6,
             children: [
               _pill(
                 icon: Icons.gps_fixed,
                 label: state.lastSample == null
-                    ? 'No GPS'
+                    ? 'Acquiring GPS…'
                     : formatLatLng(state.lastSample!.lat, state.lastSample!.lng),
                 good: state.lastSample != null,
               ),
-              const SizedBox(width: 8),
+              _pill(
+                icon: state.flashAvailable ? Icons.flash_on : Icons.flash_off,
+                label: state.flashAvailable ? 'Flash OK' : 'No flash',
+                good: state.flashAvailable,
+              ),
               _pill(
                 icon: Icons.my_location,
                 label: '${state.pointsCaptured} captured',
                 good: true,
               ),
-              const SizedBox(width: 8),
               _pill(
                 icon: Icons.cloud_upload_outlined,
                 label: '${state.pointsUploaded} sent',

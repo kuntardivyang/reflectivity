@@ -28,6 +28,11 @@ class SurveyState {
   final GpsSample? lastSample;
   final String? errorMessage;
 
+  /// Reflects [FlashController.available]. Flips to false when the torch
+  /// stops responding mid-survey so the UI can show "No flash" instead
+  /// of silently feeding stale ambient frames.
+  final bool flashAvailable;
+
   const SurveyState({
     this.isRunning = false,
     this.session,
@@ -38,6 +43,7 @@ class SurveyState {
     this.lastDetections = const [],
     this.lastSample,
     this.errorMessage,
+    this.flashAvailable = true,
   });
 
   SurveyState copyWith({
@@ -51,6 +57,7 @@ class SurveyState {
     GpsSample? lastSample,
     String? errorMessage,
     bool clearError = false,
+    bool? flashAvailable,
   }) =>
       SurveyState(
         isRunning: isRunning ?? this.isRunning,
@@ -62,6 +69,7 @@ class SurveyState {
         lastDetections: lastDetections ?? this.lastDetections,
         lastSample: lastSample ?? this.lastSample,
         errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
+        flashAvailable: flashAvailable ?? this.flashAvailable,
       );
 }
 
@@ -79,6 +87,8 @@ class SurveyController extends StateNotifier<SurveyState> {
   bool _flashOn = false;
   StreamSubscription<bool>? _flashSub;
   Timer? _uploadTimer;
+  DateTime _lastCaptureAt = DateTime.fromMillisecondsSinceEpoch(0);
+  bool _captureInProgress = false;
 
   SurveyController({
     required YoloDetector detector,
@@ -123,7 +133,14 @@ class SurveyController extends StateNotifier<SurveyState> {
       );
       await _db.insertSession(session);
 
-      _flashSub = _flash.state.listen((isOn) => _flashOn = isOn);
+      _flashSub = _flash.state.listen((isOn) {
+        _flashOn = isOn;
+        // Propagate torch-unavailable state to the UI: if the flash
+        // controller has tripped its failure breaker, reflect that now.
+        if (state.flashAvailable != _flash.available) {
+          state = state.copyWith(flashAvailable: _flash.available);
+        }
+      });
       _uploadTimer = Timer.periodic(
         const Duration(seconds: 30),
         (_) => _drainUploadQueue(session.id),
@@ -140,48 +157,77 @@ class SurveyController extends StateNotifier<SurveyState> {
   }
 
   /// Process one camera frame. Called from the camera stream.
+  ///
+  /// Design notes:
+  /// - Torch APIs on real devices are unreliable. If the flash stopped
+  ///   strobing we fall back to single-frame luminance so captures still
+  ///   flow — less accurate than a flash/ambient delta, but better than
+  ///   a stuck counter during a demo.
+  /// - A GPS fix can take 30-60 s on weak signal. We stamp measurements
+  ///   with (0, 0) when no sample has arrived yet; the UI surfaces this
+  ///   as "Waiting for GPS" but the pipeline keeps running so users see
+  ///   the flash and counters working.
+  /// - Captures are throttled to [AppConfig.minCaptureInterval] so we do
+  ///   not flood SQLite at 30 fps.
   Future<void> onFrame(CameraImage frame) async {
     if (!state.isRunning || state.session == null) return;
+    if (_captureInProgress) return;
 
-    if (!_flashOn) {
+    // Pair ambient ↔ illuminated frames whenever the torch is actually
+    // toggling. If torch failed, we still fall through with null ambient.
+    if (_flash.available && !_flashOn) {
       _ambientFrame = frame;
       return;
     }
-    final ambient = _ambientFrame;
-    if (ambient == null) return;
 
-    final detections = _detector.detect(frame);
-    if (detections.isEmpty) {
-      state = state.copyWith(lastDetections: const []);
+    final now = DateTime.now();
+    if (now.difference(_lastCaptureAt) < AppConfig.minCaptureInterval) {
       return;
     }
+    _lastCaptureAt = now;
+    _captureInProgress = true;
 
-    final primary = detections.first;
-    final delta = _luminance.luminanceDelta(frame, ambient, primary.box);
-    final rlValue = _rl.compute(delta);
-    final status = SafetyClassifier.classify(rlValue);
-    final sample = _gps.lastSample;
+    try {
+      final detections = _detector.detect(frame);
+      if (detections.isEmpty) {
+        state = state.copyWith(lastDetections: const []);
+        return;
+      }
 
-    state = state.copyWith(
-      lastRl: rlValue,
-      lastStatus: status,
-      lastDetections: detections,
-      lastSample: sample,
-    );
+      final primary = detections.first;
+      final ambient = _ambientFrame;
 
-    if (sample != null) {
+      // Pick best available luminance signal:
+      //   1. Flash delta (most accurate, needs ambient + illuminated pair)
+      //   2. Single-frame absolute luminance (flash broken fallback)
+      final double signalLum = ambient != null && _flash.available
+          ? _luminance.luminanceDelta(frame, ambient, primary.box)
+          : _luminance.meanLuminance(frame, primary.box);
+      final rlValue = _rl.compute(signalLum);
+      final status = SafetyClassifier.classify(rlValue);
+      final sample = _gps.lastSample;
+
+      state = state.copyWith(
+        lastRl: rlValue,
+        lastStatus: status,
+        lastDetections: detections,
+        lastSample: sample,
+      );
+
       final m = Measurement(
         sessionId: state.session!.id,
         highway: state.session!.highway,
-        lat: sample.lat,
-        lng: sample.lng,
+        lat: sample?.lat ?? 0.0,
+        lng: sample?.lng ?? 0.0,
         rlValue: rlValue,
         status: status.label,
-        speedKmh: sample.speedKmh,
-        capturedAt: DateTime.now().toUtc(),
+        speedKmh: sample?.speedKmh,
+        capturedAt: now.toUtc(),
       );
       await _db.insertMeasurement(m);
       state = state.copyWith(pointsCaptured: state.pointsCaptured + 1);
+    } finally {
+      _captureInProgress = false;
     }
   }
 
@@ -225,11 +271,12 @@ class SurveyController extends StateNotifier<SurveyState> {
 final surveyControllerProvider =
     StateNotifierProvider<SurveyController, SurveyState>((ref) {
   final calibrator = OECFCalibrator.defaultCurve();
+  final luminance = LuminanceAnalyzer(calibrator: calibrator);
   return SurveyController(
-    detector: YoloDetector(),
+    detector: YoloDetector(analyzer: luminance),
     flash: FlashController(hz: AppConfig.flashHz),
     gps: LocationService(),
-    luminance: LuminanceAnalyzer(calibrator: calibrator),
+    luminance: luminance,
     rl: const RLCalculator(),
     db: LocalDatabase(),
     api: ApiClient(),

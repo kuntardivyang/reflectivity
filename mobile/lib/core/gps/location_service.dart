@@ -57,9 +57,29 @@ class LocationService {
       throw StateError('Location permission denied');
     }
 
+    // Kick off a one-shot fix in parallel with the stream. The stream
+    // can stall for 30-60 s waiting for a "best" fix on weak signal;
+    // getCurrentPosition returns whatever the OS has cached or can
+    // acquire quickly so the UI gets a point to show fast.
+    unawaited(
+      Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+          timeLimit: Duration(seconds: 10),
+        ),
+      ).then((p) {
+        final sample = GpsSample.fromPosition(p);
+        _last = sample;
+        if (!_controller.isClosed) _controller.add(sample);
+      }).catchError((_) {}),
+    );
+
     _sub = Geolocator.getPositionStream(
       locationSettings: const LocationSettings(
-        accuracy: LocationAccuracy.best,
+        // "high" emits on cell+wifi+GPS hybrid; "best" demands GNSS-grade
+        // and stays silent on cloudy/indoor starts, which is why users
+        // saw "No GPS" forever in early testing.
+        accuracy: LocationAccuracy.high,
         distanceFilter: 0,
       ),
     ).listen((p) {

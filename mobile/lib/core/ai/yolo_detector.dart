@@ -5,6 +5,7 @@ import 'package:image/image.dart' as img;
 import 'package:tflite_flutter/tflite_flutter.dart';
 
 import '../measurement/luminance_analyzer.dart';
+import 'brightest_patch_finder.dart';
 
 /// One detection from the YOLOv8 model.
 class Detection {
@@ -33,9 +34,20 @@ class YoloDetector {
   bool _loaded = false;
   bool _fallbackMode = false;
 
-  /// True when the model failed to load and [detect] is returning a
-  /// fixed center ROI instead of running inference. Lets the UI show a
-  /// "MODEL MISSING" banner while the rest of the pipeline still works.
+  /// Heuristic detector used when the TFLite asset is missing. Scans the
+  /// lower frame for the brightest patch — under flash that is almost
+  /// always the retroreflective marking.
+  final BrightestPatchFinder _patchFinder;
+  final LuminanceAnalyzer _analyzer;
+
+  YoloDetector({
+    BrightestPatchFinder? patchFinder,
+    required LuminanceAnalyzer analyzer,
+  })  : _patchFinder = patchFinder ?? const BrightestPatchFinder(),
+        _analyzer = analyzer;
+
+  /// True when the model failed to load and [detect] falls back to the
+  /// brightest-patch finder. Lets the UI show a DEMO MODE banner.
   bool get fallbackMode => _fallbackMode;
 
   Future<void> load({String assetPath = 'assets/models/yolov8n.tflite'}) async {
@@ -53,20 +65,8 @@ class YoloDetector {
   List<Detection> detect(CameraImage frame) {
     if (!_loaded) return const [];
     if (_fallbackMode || _interpreter == null) {
-      final w = frame.width;
-      final h = frame.height;
-      return [
-        Detection(
-          box: RoiBox(
-            (w * 0.35).round(),
-            (h * 0.55).round(),
-            (w * 0.30).round(),
-            (h * 0.30).round(),
-          ),
-          confidence: 0.5,
-          classId: 0,
-        ),
-      ];
+      final roi = _patchFinder.findBrightest(frame, _analyzer);
+      return [Detection(box: roi, confidence: 0.5, classId: 0)];
     }
 
     final input = _preprocess(frame);
