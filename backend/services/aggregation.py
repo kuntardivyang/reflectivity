@@ -62,18 +62,31 @@ def aggregate_measurements(db: Session, measurements: list[Measurement]) -> list
     for idxs in _chunk_by_distance(points, SEGMENT_LENGTH_METERS):
         chunk = [measurements[i] for i in idxs]
         chunk_points = [points[i] for i in idxs]
-        rls = [m.rl_value for m in chunk]
 
-        rl_avg = sum(rls) / len(rls)
-        dominant_status = Counter(m.status for m in chunk).most_common(1)[0][0]
+        # Uncalibrated points (no flash differential available) still
+        # contribute a GPS trace for the segment path but must not drag
+        # the RL average down — their rl_value is a placeholder zero.
+        calibrated = [m for m in chunk if m.status != "UNCAL"]
+        rls = [m.rl_value for m in calibrated]
+
+        if rls:
+            rl_avg = sum(rls) / len(rls)
+            rl_min = min(rls)
+            rl_max = max(rls)
+            dominant_status = Counter(
+                m.status for m in calibrated
+            ).most_common(1)[0][0]
+        else:
+            rl_avg = rl_min = rl_max = None
+            dominant_status = "UNCAL"
 
         segment = Segment(
             id=uuid.uuid4(),
             highway=chunk[0].highway,
             path=from_shape(LineString([(p.x, p.y) for p in chunk_points]), srid=4326),
             rl_avg=rl_avg,
-            rl_min=min(rls),
-            rl_max=max(rls),
+            rl_min=rl_min,
+            rl_max=rl_max,
             status=dominant_status,
             point_count=len(chunk),
         )

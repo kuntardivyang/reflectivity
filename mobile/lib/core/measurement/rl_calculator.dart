@@ -17,6 +17,14 @@ class RLCalculator {
   /// per-frame from camera mounting height + bounding box position.
   final double distanceMeters;
 
+  /// Physical upper bound on RL for road markings. The brightest fresh
+  /// glass-bead thermoplastic paint tops out around 500 mcd/m²/lux; 2000
+  /// is a hard ceiling that still lets us detect truly anomalous inputs
+  /// (e.g. the pipeline running without flash differential, which makes
+  /// the math spit out 10⁶+). Values above the ceiling get clamped so a
+  /// bad frame pair never lies to the judge/dashboard.
+  static const double rlCeiling = 2000.0;
+
   const RLCalculator({
     this.flashLumens = 50.0,
     this.distanceMeters = 5.0,
@@ -28,10 +36,13 @@ class RLCalculator {
   }
 
   /// Compute RL in mcd/m²/lux from a luminance delta in cd/m².
+  /// Always clamped to [0, rlCeiling].
   double compute(double luminanceDelta) {
     if (luminanceDelta <= 0) return 0;
     final lux = _illuminanceAtMarking();
     if (lux <= 0) return 0;
-    return (luminanceDelta / lux) * 1000.0;
+    final raw = (luminanceDelta / lux) * 1000.0;
+    if (raw > rlCeiling) return rlCeiling;
+    return raw;
   }
 }

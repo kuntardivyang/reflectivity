@@ -52,6 +52,12 @@ class _SurveyScreenState extends ConsumerState<SurveyScreen> {
         imageFormatGroup: ImageFormatGroup.yuv420,
       );
       await controller.initialize();
+      // Share the active camera's flash hardware with FlashController.
+      // torch_light frequently fails when an image stream is running;
+      // CameraController.setFlashMode owns the same session and works.
+      ref.read(surveyControllerProvider.notifier).bindFlashToggler(
+        (on) => controller.setFlashMode(on ? FlashMode.torch : FlashMode.off),
+      );
       await controller.startImageStream((frame) {
         ref.read(surveyControllerProvider.notifier).onFrame(frame);
       });

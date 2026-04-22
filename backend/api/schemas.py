@@ -11,7 +11,7 @@ class MeasurementIn(BaseModel):
     lat:         float = Field(..., ge=-90, le=90)
     lng:         float = Field(..., ge=-180, le=180)
     rl_value:    float = Field(..., ge=0, le=4000, description="mcd/m²/lux")
-    status:      str   = Field(..., pattern="^(SAFE|WARNING|CRITICAL)$")
+    status:      str   = Field(..., pattern="^(SAFE|WARNING|CRITICAL|UNCAL)$")
     speed_kmh:   Optional[float] = None
     highway:     Optional[str]   = None
     captured_at: datetime

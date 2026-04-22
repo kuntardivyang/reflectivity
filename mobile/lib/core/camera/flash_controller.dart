@@ -7,6 +7,11 @@ import 'package:torch_light/torch_light.dart';
 ///
 /// The measurement pipeline pairs each ON frame with the subsequent OFF
 /// frame to isolate the retroreflected component from ambient light.
+/// A hardware-level torch toggler. Returning a future that completes
+/// means the state change landed. Throw on failure so the controller
+/// can count errors and trip its breaker.
+typedef TorchToggler = Future<void> Function(bool on);
+
 class FlashController {
   final int hz;
   Timer? _timer;
@@ -14,6 +19,18 @@ class FlashController {
   bool _disposed = false;
   bool _toggleInFlight = false;
   int _consecutiveFailures = 0;
+
+  /// External torch toggler, typically wired to
+  /// CameraController.setFlashMode() so the torch shares the camera's
+  /// active hardware session. When null, we fall back to the torch_light
+  /// plugin which talks directly to the platform torch API — on many
+  /// Android devices this conflicts with an active image stream and
+  /// trips the failure breaker within seconds.
+  TorchToggler? _toggler;
+
+  /// Replace the toggler at runtime — the UI calls this once the
+  /// CameraController has finished initialising.
+  set toggler(TorchToggler? fn) => _toggler = fn;
 
   /// Threshold after which we assume the torch API is broken on this
   /// device/permission combo. When reached, [available] flips to false and
@@ -60,7 +77,10 @@ class FlashController {
     _toggleInFlight = true;
     final target = !_isOn;
     try {
-      if (target) {
+      final override = _toggler;
+      if (override != null) {
+        await override(target);
+      } else if (target) {
         await TorchLight.enableTorch();
       } else {
         await TorchLight.disableTorch();
@@ -90,7 +110,12 @@ class FlashController {
     _timer = null;
     if (_isOn) {
       try {
-        await TorchLight.disableTorch();
+        final override = _toggler;
+        if (override != null) {
+          await override(false);
+        } else {
+          await TorchLight.disableTorch();
+        }
       } catch (_) {}
       _isOn = false;
     }

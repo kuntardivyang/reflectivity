@@ -4,7 +4,7 @@ import 'package:camera/camera.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/ai/yolo_detector.dart';
-import '../../core/camera/flash_controller.dart';
+import '../../core/camera/flash_controller.dart' show FlashController, TorchToggler;
 import '../../core/config.dart';
 import '../../core/gps/location_service.dart';
 import '../../core/measurement/luminance_analyzer.dart';
@@ -115,6 +115,14 @@ class SurveyController extends StateNotifier<SurveyState> {
   /// without constructing a second LocalDatabase instance.
   LocalDatabase get localDb => _db;
 
+  /// Bind a hardware-level torch function (normally the CameraController's
+  /// setFlashMode). Called from the UI after the camera finishes
+  /// initialising so [FlashController] can share the active session
+  /// instead of conflicting with it through torch_light.
+  void bindFlashToggler(TorchToggler toggler) {
+    _flash.toggler = toggler;
+  }
+
   Future<void> start({
     String? vehicleId,
     String? surveyor,
@@ -196,19 +204,25 @@ class SurveyController extends StateNotifier<SurveyState> {
 
       final primary = detections.first;
       final ambient = _ambientFrame;
+      final hasFlashDelta = ambient != null && _flash.available;
 
-      // Pick best available luminance signal:
-      //   1. Flash delta (most accurate, needs ambient + illuminated pair)
-      //   2. Single-frame absolute luminance (flash broken fallback)
-      final double signalLum = ambient != null && _flash.available
+      // RL from the flash/ambient delta is the only physically valid
+      // reading. Without it we still compute a number (so the HUD isn't
+      // dead), but we mark the measurement uncalibrated so neither the
+      // UI nor the backend interprets it as a real retroreflectivity
+      // score.
+      final double signalLum = hasFlashDelta
           ? _luminance.luminanceDelta(frame, ambient, primary.box)
           : _luminance.meanLuminance(frame, primary.box);
       final rlValue = _rl.compute(signalLum);
-      final status = SafetyClassifier.classify(rlValue);
+      final status = SafetyClassifier.classify(
+        rlValue,
+        calibrated: hasFlashDelta,
+      );
       final sample = _gps.lastSample;
 
       state = state.copyWith(
-        lastRl: rlValue,
+        lastRl: hasFlashDelta ? rlValue : null,
         lastStatus: status,
         lastDetections: detections,
         lastSample: sample,
@@ -219,7 +233,7 @@ class SurveyController extends StateNotifier<SurveyState> {
         highway: state.session!.highway,
         lat: sample?.lat ?? 0.0,
         lng: sample?.lng ?? 0.0,
-        rlValue: rlValue,
+        rlValue: hasFlashDelta ? rlValue : 0.0,
         status: status.label,
         speedKmh: sample?.speedKmh,
         capturedAt: now.toUtc(),
