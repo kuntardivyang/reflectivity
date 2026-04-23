@@ -35,6 +35,7 @@ def get_stats(db: Session = Depends(get_db)):
         "safe_count":        status_counts.get("SAFE", 0),
         "warning_count":     status_counts.get("WARNING", 0),
         "critical_count":    status_counts.get("CRITICAL", 0),
+        "uncal_count":       status_counts.get("UNCAL", 0),
         "network_rl_avg":    round(network_rl_avg, 1) if network_rl_avg else None,
         "active_alerts":     active_alerts,
     }

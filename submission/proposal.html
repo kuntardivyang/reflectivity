@@ -1,0 +1,1371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ReflectScan — NHAI Innovation Hackathon 2026</title>
+<style>
+  @page {
+    size: A4;
+    margin: 14mm 14mm 14mm 14mm;
+    @bottom-right {
+      content: counter(page) " / " counter(pages);
+      font-family: 'Helvetica', sans-serif;
+      font-size: 9pt;
+      color: #64748b;
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0; padding: 0;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color: #0f172a;
+    font-size: 10.5pt;
+    line-height: 1.45;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .page {
+    page-break-after: always;
+    padding-bottom: 0;
+  }
+  .page:last-child { page-break-after: auto; }
+
+  h1, h2, h3, h4 {
+    font-weight: 700;
+    color: #0f172a;
+    line-height: 1.2;
+    margin: 0 0 6pt 0;
+  }
+  h1 { font-size: 28pt; letter-spacing: -0.5pt; }
+  h2 {
+    font-size: 15pt;
+    border-bottom: 2.5pt solid #1e40af;
+    padding-bottom: 3pt;
+    margin: 0 0 10pt 0;
+    color: #1e40af;
+  }
+  h3 {
+    font-size: 12pt;
+    margin: 12pt 0 4pt 0;
+    color: #1e3a8a;
+  }
+  h4 {
+    font-size: 10.5pt;
+    margin: 8pt 0 2pt 0;
+    color: #334155;
+  }
+
+  p { margin: 4pt 0 6pt 0; }
+  ul, ol { margin: 4pt 0 6pt 0; padding-left: 18pt; }
+  li { margin-bottom: 2pt; }
+
+  strong { color: #0f172a; }
+
+  code, .mono {
+    font-family: 'SF Mono', 'Monaco', 'Menlo', 'Consolas', monospace;
+    font-size: 9pt;
+    background: #f1f5f9;
+    padding: 1pt 3pt;
+    border-radius: 2pt;
+  }
+
+  pre.mono {
+    background: #0f172a;
+    color: #e2e8f0;
+    padding: 8pt 10pt;
+    border-radius: 4pt;
+    font-size: 8.5pt;
+    line-height: 1.35;
+    overflow: hidden;
+    white-space: pre-wrap;
+    margin: 6pt 0;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 6pt 0 10pt 0;
+    font-size: 9.5pt;
+  }
+  th {
+    background: #1e40af;
+    color: white;
+    text-align: left;
+    padding: 5pt 7pt;
+    font-weight: 600;
+    font-size: 9.5pt;
+  }
+  td {
+    border-bottom: 0.5pt solid #cbd5e1;
+    padding: 5pt 7pt;
+    vertical-align: top;
+  }
+  tr:nth-child(even) td { background: #f8fafc; }
+
+  .callout {
+    background: #eff6ff;
+    border-left: 3pt solid #1e40af;
+    padding: 7pt 10pt;
+    margin: 8pt 0;
+    border-radius: 0 3pt 3pt 0;
+  }
+
+  .callout-red {
+    background: #fef2f2;
+    border-left: 3pt solid #dc2626;
+    padding: 7pt 10pt;
+    margin: 8pt 0;
+    border-radius: 0 3pt 3pt 0;
+  }
+
+  .callout-green {
+    background: #f0fdf4;
+    border-left: 3pt solid #16a34a;
+    padding: 7pt 10pt;
+    margin: 8pt 0;
+    border-radius: 0 3pt 3pt 0;
+  }
+
+  .callout-amber {
+    background: #fffbeb;
+    border-left: 3pt solid #d97706;
+    padding: 7pt 10pt;
+    margin: 8pt 0;
+    border-radius: 0 3pt 3pt 0;
+  }
+
+  .cover {
+    height: 262mm;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 10mm 0 0 0;
+  }
+
+  .cover-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    font-size: 9pt;
+    color: #64748b;
+    border-bottom: 1pt solid #cbd5e1;
+    padding-bottom: 8pt;
+    margin-bottom: 20pt;
+  }
+
+  .cover-body h1 {
+    font-size: 42pt;
+    color: #1e40af;
+    margin-bottom: 6pt;
+  }
+  .cover-body .subtitle {
+    font-size: 14pt;
+    color: #475569;
+    font-weight: 400;
+    margin-bottom: 28pt;
+  }
+
+  .cover-hero {
+    background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+    color: white;
+    padding: 18pt 22pt;
+    border-radius: 6pt;
+    margin: 14pt 0;
+  }
+  .cover-hero h2 {
+    color: white;
+    border-bottom: none;
+    font-size: 18pt;
+    margin-bottom: 6pt;
+    padding: 0;
+  }
+  .cover-hero p {
+    font-size: 12pt;
+    color: #dbeafe;
+    margin: 0;
+    line-height: 1.45;
+  }
+
+  .stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 8pt;
+    margin: 16pt 0;
+  }
+  .stat {
+    background: #f1f5f9;
+    padding: 10pt 12pt;
+    border-radius: 4pt;
+    border: 0.5pt solid #e2e8f0;
+  }
+  .stat .num {
+    font-size: 20pt;
+    font-weight: 700;
+    color: #1e40af;
+    line-height: 1;
+    margin-bottom: 4pt;
+  }
+  .stat .lbl {
+    font-size: 8.5pt;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.4pt;
+    line-height: 1.2;
+  }
+
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12pt;
+  }
+
+  .ascii {
+    font-family: 'SF Mono', 'Monaco', 'Menlo', monospace;
+    font-size: 7.5pt;
+    line-height: 1.25;
+    background: #f8fafc;
+    padding: 10pt;
+    border-radius: 4pt;
+    border: 0.5pt solid #cbd5e1;
+    white-space: pre;
+    overflow: hidden;
+    color: #1e293b;
+  }
+
+  .pill {
+    display: inline-block;
+    padding: 1.5pt 7pt;
+    border-radius: 99pt;
+    font-size: 8pt;
+    font-weight: 600;
+    letter-spacing: 0.3pt;
+    text-transform: uppercase;
+  }
+  .pill-green { background: #dcfce7; color: #166534; }
+  .pill-yellow { background: #fef3c7; color: #92400e; }
+  .pill-red { background: #fee2e2; color: #991b1b; }
+  .pill-blue { background: #dbeafe; color: #1e3a8a; }
+  .pill-gray { background: #f1f5f9; color: #475569; }
+  .pill-amber { background: #fef3c7; color: #9a3412; }
+
+  .section-hero {
+    color: #1e40af;
+    font-size: 10pt;
+    font-weight: 600;
+    letter-spacing: 1pt;
+    text-transform: uppercase;
+    margin-bottom: 2pt;
+  }
+
+  .criteria-badge {
+    float: right;
+    background: #1e40af;
+    color: white;
+    font-size: 8pt;
+    padding: 2pt 7pt;
+    border-radius: 99pt;
+    font-weight: 600;
+    letter-spacing: 0.3pt;
+    margin-top: 3pt;
+  }
+
+  .footer-links {
+    font-size: 9pt;
+    color: #475569;
+    border-top: 1pt solid #cbd5e1;
+    padding-top: 10pt;
+    margin-top: 20pt;
+  }
+
+  .cost-bar {
+    display: flex;
+    align-items: center;
+    margin: 3pt 0;
+  }
+  .cost-bar .lbl { width: 35%; font-size: 9.5pt; }
+  .cost-bar .bar {
+    flex: 1;
+    height: 16pt;
+    background: #e2e8f0;
+    border-radius: 2pt;
+    position: relative;
+    overflow: hidden;
+  }
+  .cost-bar .fill {
+    height: 100%;
+    background: linear-gradient(90deg, #dc2626, #b91c1c);
+  }
+  .cost-bar .fill-green {
+    background: linear-gradient(90deg, #16a34a, #15803d);
+  }
+  .cost-bar .val {
+    width: 20%;
+    text-align: right;
+    font-size: 9.5pt;
+    font-weight: 600;
+    padding-left: 6pt;
+  }
+
+  .tag {
+    display: inline-block;
+    background: #eff6ff;
+    color: #1e40af;
+    font-size: 8.5pt;
+    padding: 1pt 6pt;
+    border-radius: 3pt;
+    margin-right: 4pt;
+    margin-bottom: 3pt;
+    font-weight: 500;
+  }
+
+  .author-box {
+    background: #f8fafc;
+    padding: 10pt 12pt;
+    border-radius: 4pt;
+    border: 0.5pt solid #cbd5e1;
+    font-size: 9.5pt;
+  }
+
+  .disclaimer-box {
+    background: #fffbeb;
+    border: 1pt solid #fbbf24;
+    padding: 9pt 12pt;
+    border-radius: 4pt;
+    margin: 8pt 0;
+    font-size: 9.5pt;
+  }
+  .disclaimer-box .lbl {
+    font-size: 8pt;
+    font-weight: 700;
+    letter-spacing: 0.5pt;
+    text-transform: uppercase;
+    color: #92400e;
+    margin-bottom: 3pt;
+  }
+
+  /* Prevent awkward breaks */
+  h2, h3, h4 { page-break-after: avoid; }
+  table, .callout, .callout-red, .callout-green, .callout-amber, .disclaimer-box, pre, .ascii {
+    page-break-inside: avoid;
+  }
+
+</style>
+</head>
+<body>
+
+<!-- ───────────────────────────── PAGE 1 — COVER ───────────────────────────── -->
+<div class="page">
+  <div class="cover">
+    <div>
+      <div class="cover-header">
+        <div>
+          <strong>6<sup>th</sup> NHAI Innovation Hackathon 2026</strong><br>
+          Retroreflectivity measurement of road markings and sign boards
+        </div>
+        <div style="text-align: right;">
+          Submission Date: 22 April 2026<br>
+          Deadline: 23 April 2026, 5:00 PM
+        </div>
+      </div>
+
+      <div class="cover-body">
+        <h1>ReflectScan</h1>
+        <div class="subtitle">
+          A smartphone-based data-collection and RL-estimation prototype for the
+          national highway network.
+        </div>
+
+        <div class="cover-hero">
+          <h2>Any patrol vehicle + any Android phone = scalable data capture for RL assessment.</h2>
+          <p>
+            A proof-of-concept platform that aims to complement
+            ₹80 Lakh – ₹1.5 Crore specialized retroreflectivity vehicles with a
+            smartphone workflow mounted on existing patrol fleets.
+            Physics-derived approach (distinct from pure ML regression).
+            Offline-first data pipeline. End-to-end prototype exercised on local
+            road drives in Ahmedabad on 22 April 2026 for pipeline validation;
+            RL calibration against IRC-standard instruments is scheduled as a
+            Phase 1 next step.
+          </p>
+        </div>
+
+        <div class="stats">
+          <div class="stat">
+            <div class="num">PoC</div>
+            <div class="lbl">Current maturity — proof of concept</div>
+          </div>
+          <div class="stat">
+            <div class="num">51</div>
+            <div class="lbl">Automated code-level tests passing</div>
+          </div>
+          <div class="stat">
+            <div class="num">~₹1.5 K</div>
+            <div class="lbl">Projected marginal unit cost (mount only)</div>
+          </div>
+          <div class="stat">
+            <div class="num">Android 8+</div>
+            <div class="lbl">Minimum target platform</div>
+          </div>
+        </div>
+
+        <h3>What this submission contains</h3>
+        <ul>
+          <li><strong>Prototype software:</strong> Android app (Flutter) + FastAPI + PostGIS backend, end-to-end data pipeline working offline and online.</li>
+          <li><strong>Pipeline-validation drive:</strong> 82 GPS-tagged captures exercising the camera → flash → classification → offline storage path on <em>local road conditions</em> in Ahmedabad.</li>
+          <li><strong>Physics-based RL formulation</strong> documented step-by-step; correctness depends on subsequent calibration work.</li>
+          <li><strong>Validation roadmap:</strong> controlled testing plan against a handheld retroreflectometer (IRC 67 / IRC 35), not yet executed.</li>
+          <li><strong>Public GitHub repository</strong> with full source, 51 passing tests, and deployment documentation.</li>
+        </ul>
+
+        <div class="disclaimer-box">
+          <div class="lbl">Maturity disclaimer</div>
+          ReflectScan is a hackathon prototype. The present document describes
+          system design, an end-to-end software pipeline, and a pipeline-validation
+          drive. <strong>It does not claim accuracy-validated or IRC-certified RL
+          measurements.</strong> Accuracy calibration and benchmarking against
+          standard instruments are identified as the first items in the proposed
+          NHAI pilot. See "Prototype Testing &amp; Validation Scope" (page 7) and
+          "Validation Plan &amp; Next Steps" (page 10).
+        </div>
+      </div>
+    </div>
+
+    <div class="author-box">
+      <strong>Team Leader:</strong> [Your Name]<br>
+      <strong>Email:</strong> [your-email]<br>
+      <strong>Mobile:</strong> [your-number]<br>
+      <strong>Team size:</strong> 2 (1 developer + 1 ML / content)<br>
+      <strong>Repository:</strong> https://github.com/[your-username]/reflectivity<br>
+      <strong>Demo video:</strong> [YouTube unlisted link]
+    </div>
+  </div>
+</div>
+
+<!-- ───────────────────────────── PAGE 2 — PROBLEM ───────────────────────────── -->
+<div class="page">
+  <div class="section-hero">Context</div>
+  <h2>The Problem NHAI Asked Us to Address</h2>
+
+  <p>
+    NHAI operates <strong>1.46 Lakh km of national highways</strong>. Each kilometre
+    contains retroreflective assets — pavement markings, gantry signs, delineators,
+    road studs — that must meet IRC 67 / IRC 35 minimum RL thresholds throughout
+    their service life. When those thresholds fall, night-time visibility drops
+    and accident risk rises.
+  </p>
+
+  <h3>Why current measurement approaches face scale limits</h3>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Approach</th>
+        <th>Typical unit cost</th>
+        <th>Practical annual coverage</th>
+        <th>Operator considerations</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Handheld retroreflectometer (e.g. Delta-E LTL, Zehntner RETRORED)</td>
+        <td>₹2–5 Lakh per unit</td>
+        <td>Limited by staff-hours on the road</td>
+        <td><span class="pill pill-red">Risk</span> inspector on live highway</td>
+      </tr>
+      <tr>
+        <td>Vehicle-mounted mobile retroreflectometer</td>
+        <td>₹80 Lakh – ₹1.5 Crore per vehicle</td>
+        <td>Limited by fleet size and dedicated crews</td>
+        <td><span class="pill pill-yellow">Capex</span> specialist vehicle + crew</td>
+      </tr>
+      <tr>
+        <td>Pure ML / camera-only estimation (academic literature)</td>
+        <td>Low hardware cost</td>
+        <td>Theoretically unlimited</td>
+        <td><span class="pill pill-red">Trust</span> unauditable regression</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout-red">
+    <strong>Observed outcome:</strong> because each approach is either costly or
+    slow, a significant share of the NH network is not measured on a regular
+    cadence. A smartphone-based data-capture workflow could complement existing
+    methods — <em>not replace certified instruments</em> — by broadening the
+    sampling base at low marginal cost.
+  </div>
+
+  <h3>What the NHAI problem statement asks for</h3>
+  <ol>
+    <li>Retroreflectivity measurement by <strong>vehicle / drone-mounted equipment</strong>, to improve speed of coverage.</li>
+    <li>RL determination using <strong>AI &amp; ML techniques</strong> on camera data.</li>
+    <li>A combination of the above.</li>
+  </ol>
+
+  <p>ReflectScan addresses all three directions while explicitly acknowledging:</p>
+  <ul>
+    <li>This is a <strong>prototype</strong> designed to prove the data-capture and computation pipeline;</li>
+    <li>Accuracy of RL output <strong>depends on calibration</strong>, which is a scheduled next step;</li>
+    <li>The system is intended to <strong>augment</strong> IRC-compliant instruments, not substitute them in their certified role.</li>
+  </ul>
+
+  <h3>Target operating conditions and honest behaviour in each</h3>
+  <p>The NHAI problem statement lists day/night, dry/wet, with/without street light, and fog. The prototype's intended behaviour in each is:</p>
+
+  <table>
+    <thead>
+      <tr><th>Condition</th><th>Design intent — prototype behaviour</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Night + flash (primary operating mode)</td><td>Flash-delta RL computed; output subject to calibration.</td></tr>
+      <tr><td>Daylight</td><td><span class="pill pill-gray">UNCAL</span> tag emitted; GPS trace recorded; RL value not trusted by the dashboard.</td></tr>
+      <tr><td>Rain / wet asphalt</td><td>Design provides for a wet-geometry correction factor; empirical validation pending.</td></tr>
+      <tr><td>Dense fog</td><td>Flash signal attenuated; prototype's confidence reporting under fog is a subject of future testing.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ───────────────────────────── PAGE 3 — ARCHITECTURE ───────────────────────────── -->
+<div class="page">
+  <div class="section-hero">Solution</div>
+  <h2>System Architecture</h2>
+
+  <p>
+    Three layers, each independently deployable. The mobile app functions
+    offline; the backend and dashboard ingest and visualise what the fleet
+    captures.
+  </p>
+
+  <div class="ascii">┌────────────────────────────────────────────────────────────────────────┐
+│  LAYER 1 — PATROL VEHICLE  (existing NHAI fleet, no new hardware)      │
+│                                                                        │
+│   Android phone on windshield mount                                    │
+│   ├─ Camera YUV420 stream @ 30 fps                                     │
+│   ├─ LED flash strobe @ 2 Hz via CameraController.setFlashMode         │
+│   ├─ GPS (GNSS + WiFi + cell hybrid, 10 s first-fix target)            │
+│   │                                                                    │
+│   ├─►  YOLOv8n TFLite  →  lane / edge / crossing bounding boxes        │
+│   ├─►  Luminance Δ  =  illuminated frame − ambient frame (Y-plane)     │
+│   ├─►  OECF curve  →  pixel value to cd/m²   (generic curve by default │
+│   │                                            — per-device calibration│
+│   │                                            required for accuracy)  │
+│   ├─►  RL  =  ΔL / E(flash, distance) × 1000   mcd/m²/lux              │
+│   ├─►  Physical clamp [0, 2000]; UNCAL tag if flash delta invalid      │
+│   ├─►  Preliminary classification:                                     │
+│   │       SAFE &gt; 100 / WARNING 54–100 / CRITICAL &lt; 54  (IRC-aligned)   │
+│   └─►  Persist to on-device SQLite  →  upload queue                    │
+└────────────────────────────────────────────────────────────────────────┘
+                                │  batch sync when connectivity returns
+                                ▼
+┌────────────────────────────────────────────────────────────────────────┐
+│  LAYER 2 — CLOUD BACKEND  (FastAPI + PostgreSQL 15 + PostGIS 3.4)      │
+│                                                                        │
+│   POST /api/measurements   →  validate, aggregate to 100 m segments    │
+│   GET  /api/segments       →  GeoJSON FeatureCollection (map)          │
+│   GET  /api/alerts         →  active WARNING / CRITICAL list           │
+│   GET  /api/stats          →  KPI summary (per state, per NH, network) │
+│                                                                        │
+│   Alert engine:  on CRITICAL segment, raise ticket; skip duplicates    │
+│   UNCAL filter:  uncalibrated points excluded from rl_avg & status     │
+└────────────────────────────────────────────────────────────────────────┘
+                                │
+                                ▼
+┌────────────────────────────────────────────────────────────────────────┐
+│  LAYER 3 — DASHBOARD  (Next.js + Mapbox GL + deck.gl)                  │
+│                                                                        │
+│   Live map:  green / yellow / red / grey highway segments              │
+│   Alert feed:  chronological, filterable by division                   │
+│   KPI panel:  % SAFE / WARN / CRIT, coverage %, points this week       │
+│   Export:  CSV (raw), PDF (executive summary per state)                │
+└────────────────────────────────────────────────────────────────────────┘</div>
+
+  <h3>Data flow for a single capture</h3>
+  <ol>
+    <li>Camera delivers a YUV420 frame while the LED flash is ON (illuminated).</li>
+    <li>Next frame is captured with flash OFF (ambient baseline).</li>
+    <li>YOLOv8n returns a bounding box around the road marking. (If model asset is absent, a brightest-patch heuristic is used.)</li>
+    <li>Y-plane pixels inside the box are averaged for both frames.</li>
+    <li>An OECF lookup table converts pixel values to cd/m². The prototype ships with a generic gamma-2.2 curve; per-device calibration is pending.</li>
+    <li>Δ Luminance = illuminated − ambient.</li>
+    <li>Flash illuminance at marking = <code>flash_lumens / (4π × distance²)</code>. Uses a default flash lumen value; per-device photometric calibration is pending.</li>
+    <li>RL = (ΔL ÷ illuminance) × 1000. Clamped to [0, 2000].</li>
+    <li>GPS-tag, classify (with UNCAL fallback), persist to SQLite, queue for upload.</li>
+  </ol>
+
+  <div class="disclaimer-box">
+    <div class="lbl">Accuracy caveat</div>
+    Every step above is deterministic and reproducible from source. The <em>numerical
+    RL output</em>, however, depends on two device-specific reference values
+    — the per-phone OECF curve and the calibrated flash lumen output — that
+    the current prototype uses generic defaults for. Establishing accuracy
+    therefore requires a controlled calibration campaign, which is described
+    in the "Validation Plan" section of this document.
+  </div>
+</div>
+
+<!-- ───────────────────────────── PAGE 4 — HOW IT WORKS / PHYSICS ───────────────────────────── -->
+<div class="page">
+  <div class="section-hero">Methodology</div>
+  <h2>How ReflectScan Attempts to Estimate Retroreflectivity</h2>
+
+  <p>
+    Retroreflectivity (R<sub>L</sub>) is defined in ASTM E1710 as the
+    coefficient of retroreflected luminance — luminance of the marking in
+    cd/m² divided by the illuminance reaching the marking in lux, scaled
+    to mcd/m²/lux. ReflectScan's intent is to compute an
+    <em>estimate</em> of this quantity on commodity smartphones using the
+    same optical relationship that a certified retroreflectometer uses.
+  </p>
+
+  <div class="two-col">
+    <div>
+      <h3>The optical chain</h3>
+      <ol>
+        <li><strong>Illumination:</strong> phone LED delivers lumen output (nominal value; per-phone calibration required).</li>
+        <li><strong>Target:</strong> road marking glass beads retroreflect the light back toward the phone.</li>
+        <li><strong>Sensor:</strong> camera's Y-plane captures luminance-proportional pixel values.</li>
+        <li><strong>OECF curve:</strong> maps 0–255 pixel values back to photometric cd/m². Generic gamma curve today; per-device table needed for accuracy.</li>
+        <li><strong>Ambient subtraction:</strong> flash-OFF frame is subtracted to isolate the retroreflected component.</li>
+      </ol>
+    </div>
+    <div>
+      <h3>Core formula</h3>
+      <pre class="mono">ΔL   = L_illuminated − L_ambient
+E    = flash_lumens / (4 π d²)
+R_L  = (ΔL / E) × 1000</pre>
+      <p><strong>Units:</strong> L in cd/m², E in lux, R_L in mcd/m²/lux.</p>
+      <p><strong>Clamp:</strong> output bounded to [0, 2000]. Real thermoplastic paint tops out near 500; the 2000 ceiling catches sensor saturation without producing runaway values.</p>
+    </div>
+  </div>
+
+  <h3>Why we prefer a physics-derived approach over pure ML regression</h3>
+
+  <table>
+    <thead>
+      <tr><th>Pure ML / CNN regression</th><th>ReflectScan (physics + ML detector)</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Learns a function <em>photo → RL number</em>; weights are opaque.</td>
+        <td>Applies ASTM E1710 relationship directly; every step visible and reproducible.</td>
+      </tr>
+      <tr>
+        <td>A single unrepresentative training example can bias all outputs.</td>
+        <td>Calibration curves are derived, once, from known physical targets under controlled conditions.</td>
+      </tr>
+      <tr>
+        <td>No natural mechanism to decline a reading; always outputs a number.</td>
+        <td>Refuses to emit a classification when conditions are invalid (UNCAL tag).</td>
+      </tr>
+      <tr>
+        <td>Transfer to new paint formulations / new cameras typically requires retraining.</td>
+        <td>New phone model → a repeatable calibration procedure; core algorithm unchanged.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>What ML does in our design</h3>
+  <p>
+    The YOLOv8n TFLite model's role is <strong>detection, not RL estimation</strong>
+    — it locates the marking in the frame. Separation of concerns: ML locates
+    where to sample; physics (subject to calibration) computes the number from
+    those samples. If the model asset is absent, a brightest-patch heuristic
+    takes over — under flash conditions, retroreflective paint is typically
+    much brighter than surrounding asphalt, so the brightest patch in the lower
+    frame tends to coincide with the marking. Robustness of this heuristic
+    across lighting conditions is itself subject to validation.
+  </p>
+
+  <div class="callout">
+    <strong>Design position:</strong> ReflectScan is architected so that the
+    RL pipeline is auditable end-to-end. It does <em>not</em> claim current
+    numerical parity with IRC-certified instruments. Calibrating the pipeline
+    to achieve that parity is the primary work item in the proposed pilot.
+  </div>
+</div>
+
+<!-- ───────────────────────────── PAGE 5 — INNOVATION ───────────────────────────── -->
+<div class="page">
+  <div class="section-hero">Innovation <span class="criteria-badge">30 MARKS</span></div>
+  <h2>What Distinguishes ReflectScan</h2>
+
+  <h3>Four design contributions</h3>
+
+  <h4>1. Physics-derived RL pipeline, not ML-regressed RL</h4>
+  <p>
+    Academic proposals frequently train a CNN to output RL directly from an
+    image. This is a black box and resists audit. ReflectScan instead
+    <em>computes</em> RL using the same physical relationship a certified
+    retroreflectometer uses — luminance delta, OECF conversion, inverse-square-law
+    illuminance. The result is a reproducible, explainable number whose
+    <em>correctness under calibration</em> an optical engineer can examine.
+  </p>
+
+  <h4>2. Explicit uncertainty handling — the UNCAL tag</h4>
+  <p>
+    When flash differential is unavailable (strong daylight, torch hardware
+    failure), the system <strong>refuses</strong> to output a SAFE / WARNING /
+    CRITICAL classification and emits <code>UNCAL</code> instead. RL is clamped
+    to the physically plausible ceiling [0, 2000] mcd/m²/lux; backend
+    aggregation excludes UNCAL points from segment averages. Commercial
+    retroreflectometers do not routinely expose their own uncertainty to the
+    caller; ReflectScan does.
+  </p>
+
+  <h4>3. Zero-marginal-cost fleet deployment model</h4>
+  <p>
+    NHAI already operates thousands of patrol vehicles. The software runs on
+    any Android 8+ phone with a flash. The projected marginal cost of
+    deploying a new surveying unit is <strong>~₹1 500</strong> (a
+    vibration-damped windshield mount). This is a design claim about
+    deployability; actual field durability of the mount and smartphone
+    workflow remains to be observed at pilot scale.
+  </p>
+
+  <h4>4. Offline-first data pipeline</h4>
+  <p>
+    Rural NH sections have intermittent coverage. Every capture writes to
+    on-device SQLite first; uploads occur in batches when connectivity
+    returns. This behaviour was exercised in the 22 April 2026 prototype
+    drive and functions as designed in our code-level tests.
+  </p>
+
+  <h3>Head-to-head positioning</h3>
+
+  <table>
+    <thead>
+      <tr>
+        <th></th>
+        <th>Delta-E LTL-XL handheld</th>
+        <th>Zehntner RETRORED vehicle</th>
+        <th>Pure ML research</th>
+        <th>ReflectScan (this prototype)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Typical unit cost</strong></td><td>₹3 Lakh</td><td>₹1 Cr +</td><td>Low</td><td><strong>~₹1 500 (projected)</strong></td></tr>
+      <tr><td><strong>Physics-derived</strong></td><td>Yes</td><td>Yes</td><td>No</td><td><strong>Yes</strong></td></tr>
+      <tr><td><strong>Auditable formula</strong></td><td>Yes</td><td>Yes</td><td>No</td><td><strong>Yes</strong></td></tr>
+      <tr><td><strong>Accuracy validation</strong></td><td>IRC-certified</td><td>IRC-certified</td><td>Benchmark datasets</td><td><strong>Planned (Phase 1)</strong></td></tr>
+      <tr><td><strong>Vehicle-mounted workflow</strong></td><td>No</td><td>Yes (dedicated)</td><td>Possibly</td><td><strong>Yes (any vehicle, by design)</strong></td></tr>
+      <tr><td><strong>Offline operation</strong></td><td>Yes</td><td>Yes</td><td>No</td><td><strong>Yes</strong></td></tr>
+      <tr><td><strong>Uncertainty flagging</strong></td><td>No</td><td>No</td><td>No</td><td><strong>Yes (UNCAL)</strong></td></tr>
+      <tr><td><strong>Indian-road model tuning</strong></td><td>N/A</td><td>N/A</td><td>Rare</td><td><strong>Planned (IDD + Roboflow)</strong></td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout-green">
+    <strong>Innovation summary:</strong> ReflectScan's contribution is the
+    <em>combination</em> of
+    <span class="tag">physics-derived pipeline</span>
+    <span class="tag">explicit uncertainty</span>
+    <span class="tag">low-marginal-cost deployment model</span>
+    <span class="tag">offline-first data path</span>
+    in a single Android-phone artefact that runs on hardware NHAI already owns —
+    as a complement to, not a replacement for, IRC-certified instruments.
+  </div>
+</div>
+
+<!-- ───────────────────────────── PAGE 6 — FEASIBILITY ───────────────────────────── -->
+<div class="page">
+  <div class="section-hero">Feasibility <span class="criteria-badge">30 MARKS</span></div>
+  <h2>What Is Built, and the Limits of What Has Been Tested</h2>
+
+  <p>This is a working prototype, not a certified product. Below: what is complete, what is in progress, and what remains to be validated.</p>
+
+  <h3>Component status</h3>
+  <table>
+    <thead>
+      <tr><th>Component</th><th>Status</th><th>Evidence</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Backend (FastAPI + PostGIS)</td>
+        <td><span class="pill pill-green">CODE COMPLETE</span></td>
+        <td>27 pytest tests passing; 5 REST endpoints live; OpenAPI spec auto-generated</td>
+      </tr>
+      <tr>
+        <td>Mobile app (Flutter + Riverpod)</td>
+        <td><span class="pill pill-green">CODE COMPLETE</span></td>
+        <td>24 unit tests passing; APK installed and exercised on a real Android device</td>
+      </tr>
+      <tr>
+        <td>End-to-end pipeline drive</td>
+        <td><span class="pill pill-blue">PIPELINE EXERCISED</span></td>
+        <td>82 GPS-tagged captures on 22 April 2026, Ahmedabad local roads (pipeline validation only; see next section)</td>
+      </tr>
+      <tr>
+        <td>RL accuracy vs IRC instrument</td>
+        <td><span class="pill pill-amber">NOT YET ASSESSED</span></td>
+        <td>Planned as Phase 1 of the pilot; requires access to a certified retroreflectometer</td>
+      </tr>
+      <tr>
+        <td>AI model (YOLOv8n TFLite, Indian-road tuned)</td>
+        <td><span class="pill pill-yellow">IN PROGRESS</span></td>
+        <td>Stock COCO weights loaded as baseline; IDD + Roboflow fine-tune planned</td>
+      </tr>
+      <tr>
+        <td>Dashboard (Next.js + Mapbox)</td>
+        <td><span class="pill pill-yellow">IN PROGRESS</span></td>
+        <td>GeoJSON contract stable; map + KPI layout being implemented</td>
+      </tr>
+      <tr>
+        <td>Documentation</td>
+        <td><span class="pill pill-green">COMPLETE</span></td>
+        <td>README, architecture.md, research_findings.md, problem_statement.md</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Deployment roadmap</h3>
+  <table>
+    <thead>
+      <tr><th>Phase</th><th>Timeline</th><th>Scope</th><th>Projected cost</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Phase 0 — Calibration &amp; IRC benchmark</strong></td>
+        <td>Month 1</td>
+        <td>Controlled testing on reference markings with a handheld retroreflectometer; per-phone OECF + flash calibration; error characterisation</td>
+        <td>₹50 K instrument-hire + field-test logistics</td>
+      </tr>
+      <tr>
+        <td><strong>Phase 1 — Single-state pilot</strong></td>
+        <td>Month 2–3</td>
+        <td>~200 patrol phones, one state (e.g. Gujarat or Maharashtra), ~5 000 km NH coverage attempt, ground-truth subset validated against an IRC handheld device</td>
+        <td>₹3 Lakh one-time + ~₹40 K/month ops (estimate)</td>
+      </tr>
+      <tr>
+        <td><strong>Phase 2 — RAMS integration</strong></td>
+        <td>Month 4</td>
+        <td>Integration with NHAI Road Asset Management System; maintenance-ticket workflow from CRITICAL alerts; user training for 10 regional engineers</td>
+        <td>₹2 Lakh dev + ongoing ops (estimate)</td>
+      </tr>
+      <tr>
+        <td><strong>Phase 3 — Broader rollout</strong></td>
+        <td>Month 5+</td>
+        <td>Progressive rollout subject to pilot outcomes and NHAI approval</td>
+        <td>To be costed after pilot</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Hardware requirements — minimal</h3>
+  <table>
+    <thead><tr><th>Item</th><th>Spec</th><th>Indicative cost</th></tr></thead>
+    <tbody>
+      <tr><td>Android phone</td><td>Android 8+, rear camera with LED flash</td><td>Reuse fleet inventory where possible</td></tr>
+      <tr><td>Windshield mount</td><td>Vibration-damped, suction / adhesive</td><td>~₹1 500 per vehicle</td></tr>
+      <tr><td>Backend VPS</td><td>4 vCPU / 8 GB / 100 GB SSD + Postgres 15 + PostGIS 3.4</td><td>~₹4 000 / month</td></tr>
+      <tr><td>Dashboard hosting</td><td>Static Next.js on a CDN free tier</td><td>~₹0</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Known challenges and how the prototype addresses them today</h3>
+  <table>
+    <thead><tr><th>Challenge</th><th>Prototype approach</th></tr></thead>
+    <tbody>
+      <tr><td>Per-phone camera variance</td><td>OECF lookup table intended to be calibrated per device model (pending); prototype ships a generic gamma-2.2 curve as a placeholder</td></tr>
+      <tr><td>Daylight drowns flash signal</td><td>UNCAL tag; day-time captures preserve GPS path but are excluded from RL statistics</td></tr>
+      <tr><td>Torch API conflicts with active camera stream</td><td>Flash routed through <code>CameraController.setFlashMode</code>, which shares the camera session; auto-disables after repeated torch errors</td></tr>
+      <tr><td>GPS weak on cloudy starts</td><td>Hybrid mode (GNSS + Wi-Fi + cell) plus one-shot fast-fix in parallel with the stream</td></tr>
+      <tr><td>Offline operation</td><td>SQLite-backed upload queue with exponential-backoff retry</td></tr>
+      <tr><td>Implausible RL output on invalid input</td><td>Physical clamp [0, 2000 mcd/m²/lux] inside the calculator itself</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ───────────────────────────── PAGE 7 — PROTOTYPE TESTING & VALIDATION SCOPE ───────────────────────────── -->
+<div class="page">
+  <div class="section-hero">Honesty about what was tested</div>
+  <h2>Prototype Testing &amp; Validation Scope</h2>
+
+  <div class="disclaimer-box">
+    <div class="lbl">Scope of this section</div>
+    This section explicitly describes what has and has <em>not</em> been
+    tested, so the remainder of the document can be read without ambiguity.
+    The ReflectScan prototype's current testing is pipeline-level only.
+  </div>
+
+  <h3>What has been tested</h3>
+  <ul>
+    <li><strong>Code-level tests.</strong> 27 backend pytest tests and 24 mobile Dart unit tests execute on every build; all passing at time of submission.</li>
+    <li><strong>Offline data-capture pipeline.</strong> On 22 April 2026, the app was installed on a physical Android device, mounted inside a vehicle, and run on <em>local road conditions in Ahmedabad</em> for approximately 14 minutes. The exercise produced <strong>82 GPS-tagged captures</strong> that were written to the on-device SQLite store, confirming the camera, flash control, detection fallback, classification, and offline-persistence paths execute end-to-end.</li>
+    <li><strong>Error and edge-case handling.</strong> Torch failure breaker, GPS-delayed start, permission-denied flows, and missing-model fallback (brightest-patch heuristic) were all observed to behave as designed during the prototype drive.</li>
+  </ul>
+
+  <h3>What has <em>not</em> been tested</h3>
+  <ul>
+    <li><strong>Measurement accuracy against an IRC-certified retroreflectometer.</strong> No comparison reading from a Delta-E LTL-XL, Zehntner RETRORED, or equivalent has been collected. <em>Any RL number produced by the current prototype is therefore indicative, not authoritative.</em></li>
+    <li><strong>Operation on NHAI-owned national highways.</strong> The 22 April drive was on <em>local Ahmedabad roads</em>, which contain comparable pavement markings but were not operated on under NHAI supervision, and do not constitute a national-highway pilot.</li>
+    <li><strong>Per-device OECF calibration.</strong> The prototype uses a generic gamma-2.2 curve. A proper calibration requires controlled-illumination reference targets.</li>
+    <li><strong>Photometric flash calibration.</strong> The flash lumen value is a nominal default for mid-range Android hardware; it has not been measured per device.</li>
+    <li><strong>Wet, foggy, and low-light conditions.</strong> Design intent is documented; empirical behaviour across these conditions remains to be measured.</li>
+    <li><strong>Mount durability at highway cruise speeds.</strong> Prototype drive was at urban speeds; high-speed vibration / wind-load effects on capture quality are not yet characterised.</li>
+    <li><strong>Multi-device consistency.</strong> All captures were collected on one device model. Inter-device variance is unknown.</li>
+  </ul>
+
+  <h3>What the 82 captures <em>do</em> and <em>do not</em> demonstrate</h3>
+  <table>
+    <thead><tr><th>The drive does demonstrate</th><th>The drive does not demonstrate</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>End-to-end software pipeline works on real hardware under real road conditions.</td>
+        <td>That the RL numbers produced are within any stated tolerance of a certified instrument.</td>
+      </tr>
+      <tr>
+        <td>Flash strobe, GPS fix, frame pairing, detection fallback, and SQLite persistence function together.</td>
+        <td>That the chosen SAFE/WARNING/CRITICAL thresholds classify this device's output correctly.</td>
+      </tr>
+      <tr>
+        <td>GPS accuracy sufficient for 100 m segment aggregation on local roads.</td>
+        <td>Behaviour on expressways, in rain, in fog, or at speeds &gt; 50 km/h.</td>
+      </tr>
+      <tr>
+        <td>Offline queue + later sync works as designed.</td>
+        <td>Durability of the mount or camera-app combination under continuous 8-hour patrol use.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout-amber">
+    <strong>Bottom line.</strong> ReflectScan at submission time is an
+    end-to-end working prototype whose software pipeline has been exercised on
+    local Indian road conditions. It is <em>not</em> an accuracy-validated
+    retroreflectivity measurement instrument. Establishing accuracy against
+    IRC-compliant standards is the subject of the proposed Phase 0 calibration
+    and Phase 1 pilot.
+  </div>
+</div>
+
+<!-- ───────────────────────────── PAGE 8 — SCALABILITY ───────────────────────────── -->
+<div class="page">
+  <div class="section-hero">Scalability &amp; Sustainability <span class="criteria-badge">20 MARKS</span></div>
+  <h2>Designed to Scale, Subject to Validation</h2>
+
+  <p>
+    The cost and coverage projections in this section are <strong>design
+    estimates</strong> derived from architecture capacity and unit-hardware
+    pricing. They assume the prototype graduates to a calibrated tool through
+    the Phase 0 and Phase 1 activities described in the Validation Plan.
+  </p>
+
+  <h3>Scale model</h3>
+  <table>
+    <thead>
+      <tr><th>Fleet size</th><th>Design coverage frequency</th><th>Projected annual cost</th><th>Relative data volume</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>1 phone (pilot)</td><td>Device-limited</td><td>~₹1 500 (mount)</td><td>1× baseline</td></tr>
+      <tr><td>200 phones (single state)</td><td>~1 Lakh km / year (design target)</td><td>~₹3 Lakh (estimate)</td><td>~200×</td></tr>
+      <tr><td>2 000 phones (national, subject to pilot outcomes)</td><td>Entire NH network on a multi-week cadence (design target)</td><td>~₹30 Lakh (estimate)</td><td>~2 000×</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    <strong>Scaling property:</strong> each incremental phone adds an incremental
+    windshield mount and no per-unit software cost. Cost scales <em>linearly</em>
+    with fleet size while coverage compounds. These are projected figures; they
+    require observed per-phone throughput from the pilot to finalise.
+  </div>
+
+  <h3>Projected 5-year cost (design estimates)</h3>
+
+  <div style="margin: 14pt 0;">
+    <div class="cost-bar">
+      <div class="lbl">Year 1 — specialized vehicles</div>
+      <div class="bar"><div class="fill" style="width: 100%;"></div></div>
+      <div class="val">~₹100 Cr</div>
+    </div>
+    <div class="cost-bar">
+      <div class="lbl">Year 1 — ReflectScan fleet</div>
+      <div class="bar"><div class="fill fill-green" style="width: 0.7%;"></div></div>
+      <div class="val">~₹0.74 Cr</div>
+    </div>
+    <div class="cost-bar">
+      <div class="lbl">Year 5 — specialized vehicles</div>
+      <div class="bar"><div class="fill" style="width: 100%;"></div></div>
+      <div class="val">~₹180 Cr</div>
+    </div>
+    <div class="cost-bar">
+      <div class="lbl">Year 5 — ReflectScan fleet</div>
+      <div class="bar"><div class="fill fill-green" style="width: 1%;"></div></div>
+      <div class="val">~₹1.75 Cr</div>
+    </div>
+  </div>
+
+  <p style="font-size: 9pt; color: #64748b;">
+    Comparison baseline: 50 specialized vehicles at ₹80 Lakh each plus
+    ongoing crew, fuel, calibration. ReflectScan baseline: 2 000 phones ×
+    ₹1 500 mount + backend hosting + admin. Exact totals depend on NHAI
+    existing-vehicle reuse, negotiated software-hosting rates, and pilot
+    findings. Figures are illustrative, not quotations.
+  </p>
+
+  <h3>Architectural capacity (projections from design)</h3>
+  <ul>
+    <li><strong>Edge:</strong> measurement runs on-device; backend sees ~100 bytes per point. Hypothetical 2 000 phones × 500 points/day ≈ <strong>100 MB/day</strong> total ingress.</li>
+    <li><strong>Cloud:</strong> PostGIS with spatial partitioning; 14 crore points (India full coverage × 1 year) fits within a single managed Postgres instance. Not yet stress-tested; subject to load-testing during Phase 1.</li>
+    <li><strong>Dashboard:</strong> Mapbox vector-tile cache serves viewers from the CDN edge; read-path scales with CDN, not origin.</li>
+  </ul>
+
+  <h3>Potential data re-use</h3>
+  <table>
+    <thead><tr><th>Use case</th><th>How ReflectScan would enable it</th></tr></thead>
+    <tbody>
+      <tr><td>Predictive maintenance</td><td>Time-series on per-segment RL decay could flag segments approaching threshold; statistical modelling is a future work item.</td></tr>
+      <tr><td>Contractor-performance audit</td><td>Re-striping dates set segment birth times; degradation rate per contractor becomes measurable.</td></tr>
+      <tr><td>Warranty enforcement</td><td>CRITICAL findings in the warranty window can generate evidence packets (GPS, timestamp, photo) for chargebacks.</td></tr>
+      <tr><td>Public safety index</td><td>Per-district aggregates could be published as an open-data indicator, comparable to AQI in spirit.</td></tr>
+      <tr><td>Smart-highway integration</td><td>Alerts can feed NHAI HTMC / VMS systems in low-visibility zones.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Sustainability</h3>
+  <p>
+    Zero new hardware implies zero new e-waste at scale. Capture piggybacks
+    on patrol drives NHAI is already performing, with no additional fuel
+    burn. Open-source Flutter + Python stack avoids licence fees and vendor
+    lock-in. Phones retire on standard NHAI replacement cycles and the
+    software inherits the upgrade automatically.
+  </p>
+</div>
+
+<!-- ───────────────────────────── PAGE 9 — APP + AI ───────────────────────────── -->
+<div class="page">
+  <div class="section-hero">Prototype detail</div>
+  <h2>Mobile App, AI/ML Component, and Vehicle Integration</h2>
+
+  <h3>Mobile app screens &amp; user roles</h3>
+  <table>
+    <thead><tr><th>Screen</th><th>Purpose</th><th>Key elements</th></tr></thead>
+    <tbody>
+      <tr><td>Permission gate</td><td>First launch</td><td>Camera + location request with rationale + retry on denial</td></tr>
+      <tr><td>Live survey</td><td>Main workflow</td><td>Camera preview, strobing flash, detection overlay, status HUD (SAFE / WARNING / CRITICAL / UNCAL), GPS pill, captured / sent counters, START/STOP button, DEMO MODE banner when the ML model asset is absent</td></tr>
+      <tr><td>History</td><td>Past surveys</td><td>Session list (highway tag, duration, point count), drill-down to session detail</td></tr>
+      <tr><td>Error / retry</td><td>Failure states</td><td>Human-readable message, retry button — no silent failure</td></tr>
+    </tbody>
+  </table>
+
+  <table>
+    <thead><tr><th>Role</th><th>Access</th></tr></thead>
+    <tbody>
+      <tr><td>Patrol driver / surveyor</td><td>Start/stop survey, view history on own phone</td></tr>
+      <tr><td>Regional engineer</td><td>Read-only dashboard for their division; acknowledge alerts</td></tr>
+      <tr><td>NHAI admin</td><td>Full dashboard, export CSV/PDF, configure alert rules</td></tr>
+    </tbody>
+  </table>
+
+  <h3>AI / ML component</h3>
+  <p>
+    <strong>Model:</strong> YOLOv8n, TFLite float16, ~6 MB. Small enough to
+    ship inside the APK; on typical mid-range Android hardware, inference is
+    reported by the framework at interactive rates. Actual throughput on
+    NHAI-issue devices is a future measurement.
+  </p>
+
+  <p><strong>Planned classes</strong> (kept minimal so the model can generalise from a modest dataset):</p>
+  <ul>
+    <li><code>lane_line</code> — dashed centre / lane dividers</li>
+    <li><code>edge_line</code> — solid white highway edge</li>
+    <li><code>crossing</code> — zebra / pedestrian marking</li>
+  </ul>
+
+  <p><strong>Training data strategy (planned):</strong></p>
+  <ul>
+    <li><strong>Base:</strong> Indian Driving Dataset (IDD, IIIT-H) — detection-labelled Indian road imagery</li>
+    <li><strong>Augment:</strong> Roboflow Universe road-marking datasets — already in YOLO format</li>
+    <li><strong>Augmentations:</strong> mosaic, random brightness (day/night simulation), gaussian blur (motion blur simulation)</li>
+    <li><strong>Target:</strong> mAP@0.5 &gt; 0.6 on held-out Indian highway images (a <em>design target</em>, to be verified post-training)</li>
+    <li><strong>Recipe:</strong> <code>yolo train model=yolov8n.pt data=roads.yaml epochs=100 imgsz=640</code> on a free-tier Colab T4</li>
+  </ul>
+
+  <div class="callout">
+    <strong>Graceful degradation:</strong> if the TFLite asset is absent, the
+    app runs a brightest-patch heuristic on a 5×3 grid across the lower 2/3
+    of the frame. Under flash, retroreflective paint is typically much
+    brighter than asphalt; the brightest patch tends to coincide with the
+    marking. This behaviour was observed in the prototype drive. Quantitative
+    characterisation of its accuracy across lighting conditions remains to be
+    done.
+  </div>
+
+  <h3>Vehicle integration</h3>
+  <table>
+    <thead><tr><th>Parameter</th><th>Design value</th></tr></thead>
+    <tbody>
+      <tr><td>Mount position</td><td>Centre dashboard, ~1.0–1.2 m above road, facing forward</td></tr>
+      <tr><td>Intended cruise speed</td><td>40 – 80 km/h (standard patrol speed)</td></tr>
+      <tr><td>Frame rate</td><td>30 fps YUV420 — camera API native, no conversion</td></tr>
+      <tr><td>Capture throttle</td><td>One measurement per 800 ms (SQLite-friendly)</td></tr>
+      <tr><td>Geometry</td><td>~5 m forward look in the current prototype; ASTM 30 m geometry is a future extension</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Design considerations — speed vs capture density</h3>
+  <table>
+    <thead><tr><th>Speed (design target)</th><th>Expected samples per km</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>30 km/h</td><td>~150</td><td>Urban / tolled stretches</td></tr>
+      <tr><td>60 km/h</td><td>~75</td><td>Typical patrol cruise</td></tr>
+      <tr><td>90 km/h</td><td>~50</td><td>Expressway cruise (untested)</td></tr>
+    </tbody>
+  </table>
+
+  <p style="font-size: 9pt; color: #64748b;">
+    Table describes expected capture density derived from the 800 ms throttle,
+    not measured accuracy. Empirical noise characterisation per speed band
+    is a deliverable of the Phase 1 pilot.
+  </p>
+
+  <h3>Drone extension (future mode)</h3>
+  <p>
+    The same pipeline can run on a drone pointing its camera at gantry signs
+    and elevated structures that patrol cars cannot easily reach. Drone and
+    vehicle feeds land in the same backend; the dashboard is
+    modality-agnostic. Drone integration is future work; not part of the
+    current submission.
+  </p>
+</div>
+
+<!-- ───────────────────────────── PAGE 10 — VALIDATION PLAN / NEXT STEPS ───────────────────────────── -->
+<div class="page">
+  <div class="section-hero">Path to certified measurement</div>
+  <h2>Validation Plan &amp; Next Steps</h2>
+
+  <p>
+    This section describes how ReflectScan would progress from a working
+    prototype to a tool whose outputs can be trusted by NHAI engineers.
+  </p>
+
+  <h3>Phase 0 — Controlled calibration (Month 1)</h3>
+  <ol>
+    <li><strong>Procure a reference instrument</strong> — a handheld retroreflectometer conforming to IRC 67 / IRC 35 / ASTM E1710 (e.g. Delta-E LTL-XL, Zehntner RETRORED). Equipment can typically be hired or borrowed from a state PWD / NHAI regional office / civil engineering department.</li>
+    <li><strong>Build an OECF lookup table</strong> per target device model. Photograph a standard reflectance chart (X-Rite ColorChecker or similar) under controlled illumination; regress pixel value against known luminance; store as a 256-entry table.</li>
+    <li><strong>Calibrate flash lumen output</strong> per device using a calibrated lux meter at a known distance.</li>
+    <li><strong>Establish reference targets.</strong> At least 10 physical markings spanning the RL range (freshly painted to badly faded), each measured with the reference instrument.</li>
+    <li><strong>Fit correction parameters.</strong> Align ReflectScan's output to the reference instrument via a simple linear or piece-wise regression, documented in the repository.</li>
+  </ol>
+
+  <h3>Phase 1 — NHAI pilot on live highway (Month 2–3)</h3>
+  <ol>
+    <li><strong>Deployment partner:</strong> one NHAI regional office, one patrol route (~200 km, mixed 4-lane / 6-lane), ~20 patrol phones.</li>
+    <li><strong>Ground-truth subset:</strong> a sub-sample of ReflectScan segments (e.g. 50 segments) re-measured with the handheld reference instrument within 48 hours of capture.</li>
+    <li><strong>Metrics.</strong> Report mean absolute error (MAE), bias, and 95% confidence interval between ReflectScan and reference RL per segment. Publish results transparently in the final pilot report.</li>
+    <li><strong>Failure-mode logging.</strong> Instances where ReflectScan emits UNCAL or its RL disagrees materially from the reference are flagged for post-mortem.</li>
+    <li><strong>Acceptance criteria for continuing.</strong> The pilot succeeds if ReflectScan identifies the same CRITICAL segments as the reference instrument (binary classification recall &gt; agreed threshold, e.g. &gt; 0.8), even if absolute RL has residual error.</li>
+  </ol>
+
+  <h3>Phase 2 — Integration and broader rollout (Month 4+)</h3>
+  <ol>
+    <li><strong>Integration with NHAI Road Asset Management System</strong> so that CRITICAL findings auto-open maintenance tickets.</li>
+    <li><strong>User training.</strong> Regional engineers learn the dashboard; patrol staff learn the 5-minute app workflow.</li>
+    <li><strong>Incremental rollout</strong> to additional states, each subject to a repeat of Phase 1-style validation on local reference markings.</li>
+    <li><strong>Benchmarking against IRC 67 / IRC 35 pass-fail criteria</strong> at each rollout step.</li>
+  </ol>
+
+  <h3>Risk register and mitigations</h3>
+  <table>
+    <thead><tr><th>Risk</th><th>Mitigation</th></tr></thead>
+    <tbody>
+      <tr><td>Per-device variance exceeds design tolerance</td><td>Ship a device allow-list and run the OECF calibration once per model; fall back to UNCAL on unknown models.</td></tr>
+      <tr><td>Certified instrument unavailable for Phase 0</td><td>Partner with CSIR-CRRI, IIT Bombay / Madras transportation labs, or NHAI regional instrumentation stock.</td></tr>
+      <tr><td>RL accuracy insufficient for absolute compliance reporting</td><td>Position ReflectScan as a <em>screening</em> tool that flags segments for confirmatory handheld measurement, reducing inspector workload without replacing IRC-compliant sign-off.</td></tr>
+      <tr><td>Operator misuse (e.g. no mount, handheld shake)</td><td>Mount detection check + vibration signature heuristic auto-emits UNCAL on excessively shaky captures.</td></tr>
+      <tr><td>Regulatory acceptance</td><td>Engage the IRC technical committees with pilot data before scaling beyond the pilot state.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>What ReflectScan is honestly ready to do <em>today</em></h3>
+  <ul>
+    <li><strong>Collect dense, GPS-tagged, time-stamped capture data</strong> from any patrol vehicle on any Indian road.</li>
+    <li><strong>Aggregate captures into 100 m segments</strong> and surface them on a map dashboard.</li>
+    <li><strong>Flag captures where conditions invalidate the measurement</strong> via the UNCAL tag, so data consumers never confuse an invalid reading for a valid one.</li>
+    <li><strong>Provide an auditable end-to-end pipeline</strong> on which calibration work can be layered.</li>
+  </ul>
+
+  <h3>What ReflectScan is not ready to do today</h3>
+  <ul>
+    <li>Produce IRC-certified RL values that can be used for contract compliance reporting without corroboration.</li>
+    <li>Replace a handheld retroreflectometer in a court-of-law or standards-audit setting.</li>
+  </ul>
+
+  <div class="callout-green">
+    <strong>Ask:</strong> pilot approval for one state and access to, or
+    introduction to, a regional office willing to co-locate the Phase 0
+    calibration exercise with an IRC-compliant reference instrument.
+  </div>
+</div>
+
+<!-- ───────────────────────────── PAGE 11 — OUTPUTS ───────────────────────────── -->
+<div class="page">
+  <div class="section-hero">Outputs &amp; Reporting</div>
+  <h2>What the System Produces</h2>
+
+  <h3>Per-measurement payload</h3>
+  <pre class="mono">{
+  "lat":         23.0965,
+  "lng":         72.5602,
+  "rl_value":    87.3,
+  "status":      "WARNING",
+  "speed_kmh":   62.1,
+  "highway":     "NH-48",
+  "captured_at": "2026-04-22T17:21:45Z"
+}</pre>
+
+  <h3>Per-segment payload (backend aggregation)</h3>
+  <pre class="mono">{
+  "id":          "seg-a80c...",
+  "highway":     "NH-48",
+  "rl_avg":      84.2,
+  "rl_min":      51.8,
+  "rl_max":      118.3,
+  "status":      "WARNING",
+  "point_count": 38,
+  "geometry":    { "type": "LineString", "coordinates": [[...], ...] }
+}</pre>
+
+  <h3>Classification thresholds</h3>
+  <table>
+    <thead><tr><th>Status</th><th>RL range (mcd/m²/lux)</th><th>Suggested action</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill pill-green">SAFE</span></td><td>&gt; 100</td><td>No action; scheduled re-survey</td></tr>
+      <tr><td><span class="pill pill-yellow">WARNING</span></td><td>54 – 100</td><td>Schedule maintenance in the next quarter</td></tr>
+      <tr><td><span class="pill pill-red">CRITICAL</span></td><td>&lt; 54</td><td>Resurface; auto-ticket to maintenance system</td></tr>
+      <tr><td><span class="pill pill-gray">UNCAL</span></td><td>n/a</td><td>Conditions invalid; GPS trace retained; excluded from statistics</td></tr>
+    </tbody>
+  </table>
+  <p style="font-size: 9pt; color: #64748b;">
+    Thresholds aligned with <em>Impact of Road Marking Retroreflectivity on Machine Vision in Dry Conditions</em>
+    (PMC8963044, 2022) and cross-referenced with IRC 35 / IRC 67. Final thresholds for any deployment would be agreed with NHAI.
+  </p>
+
+  <h3>Dashboard reporting</h3>
+  <ol>
+    <li><strong>Live map</strong> — colour-coded highway segments on Mapbox vector tiles</li>
+    <li><strong>Alert feed</strong> — chronological list of new CRITICAL segments with GPS, timestamp</li>
+    <li><strong>KPI panel</strong> — % SAFE / WARNING / CRITICAL / UNCAL, coverage %, points captured this week</li>
+    <li><strong>Export</strong> — CSV (raw segments) and PDF (executive summary per state / division)</li>
+  </ol>
+
+  <h3>Future scope — directions of extension</h3>
+
+  <table>
+    <thead><tr><th>Direction</th><th>How ReflectScan extends</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>Signboard retroreflectivity (second half of NHAI's problem statement)</td>
+        <td>Add a <code>signboard_front</code> class to the detector. Same physics, same app — one drive covers both markings and signs. Not in the current prototype.</td>
+      </tr>
+      <tr>
+        <td>Road studs / delineators</td>
+        <td>Add a <code>road_stud</code> class. Same pipeline, different target geometry.</td>
+      </tr>
+      <tr>
+        <td>Predictive maintenance</td>
+        <td>Once enough time-series data accumulates, regression models on per-segment RL decay can anticipate threshold crossings.</td>
+      </tr>
+      <tr>
+        <td>Integration with NHAI ATMS / HTMC</td>
+        <td>CRITICAL alerts could publish to Variable Message Signs in low-visibility zones.</td>
+      </tr>
+      <tr>
+        <td>Citizen contribution mode</td>
+        <td>Read-only version of the app for civic volunteers; contributions validated before entering the official dataset.</td>
+      </tr>
+      <tr>
+        <td>Autonomous-vehicle safety layer</td>
+        <td>Public API could expose RL scores per lane; AVs could downgrade to manual in low-RL zones.</td>
+      </tr>
+      <tr>
+        <td>National safety index</td>
+        <td>State-wise retroreflectivity index, conceptually comparable to AQI for air quality.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ───────────────────────────── PAGE 12 — VERIFICATION ───────────────────────────── -->
+<div class="page">
+  <div class="section-hero">Verification &amp; Contact</div>
+  <h2>How to Verify Every Claim in This Document</h2>
+
+  <p>Everything in this submission can be independently checked by a reviewer.</p>
+
+  <h3>Live resources</h3>
+  <table>
+    <thead><tr><th>Resource</th><th>Link</th></tr></thead>
+    <tbody>
+      <tr><td>Public GitHub repository (full source)</td><td class="mono">https://github.com/[your-username]/reflectivity</td></tr>
+      <tr><td>Demo video (3-min YouTube, unlisted)</td><td class="mono">[YouTube link]</td></tr>
+      <tr><td>OpenAPI 3.1 spec (auto-generated)</td><td class="mono">/docs endpoint on a running backend</td></tr>
+      <tr><td>Architecture document</td><td class="mono">/docs/architecture.md in repo</td></tr>
+      <tr><td>Research citations</td><td class="mono">/docs/research_findings.md in repo</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Reproducibility</h3>
+  <pre class="mono"># Backend (requires Postgres + PostGIS)
+cd backend
+python3 -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+python -m db.init_db
+python -m scripts.seed_nh48
+uvicorn main:app --reload
+
+# Mobile (requires Flutter 3.19+)
+cd mobile
+flutter pub get
+flutter build apk --release
+# install resulting app-release.apk on any Android 8+ device
+
+# Tests
+cd backend && pytest          # 27 passing in ~1 s
+cd ../mobile && flutter test  # 24 passing in ~1 s</pre>
+
+  <h3>Evidence artefacts packaged with this submission</h3>
+  <ul>
+    <li><code>01_Proposal.pdf</code> — this document</li>
+    <li><code>03_Prototype_Screenshots/</code> — DEMO MODE banner, live survey HUD, session history, session detail, UNCAL status</li>
+    <li><code>04_Pipeline_Validation_Drive/</code> — metadata for the 82-capture session collected on 22 April 2026, Ahmedabad local roads (pipeline-validation only; see page 7 for scope)</li>
+    <li><code>05_Architecture_Diagram.png</code> — high-resolution export of the Layer 1 / 2 / 3 diagram</li>
+    <li><code>06_Cost_Comparison_Chart.png</code> — 5-year projected cost trajectory</li>
+    <li><code>README.txt</code> — one-page index with every link</li>
+  </ul>
+
+  <h3>Evaluation-criteria map</h3>
+  <table>
+    <thead><tr><th>NHAI criterion</th><th>Where addressed</th><th>Max</th></tr></thead>
+    <tbody>
+      <tr><td>Innovation</td><td>Page 5 — four design contributions, head-to-head positioning</td><td>30</td></tr>
+      <tr><td>Feasibility</td><td>Pages 6 &amp; 7 — component status, pipeline-validation drive, validation scope, deployment roadmap</td><td>30</td></tr>
+      <tr><td>Scalability &amp; Sustainability</td><td>Page 8 — projected scale and cost trajectory, data re-use, sustainability</td><td>20</td></tr>
+      <tr><td>Presentation &amp; Documentation</td><td>This document + repo docs + OpenAPI spec + screenshots + field-drive metadata</td><td>20</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Contact</h3>
+  <div class="author-box">
+    <strong>Team Leader:</strong> [Your Name]<br>
+    <strong>Email:</strong> [your-email]<br>
+    <strong>Mobile:</strong> [your-number]<br>
+    <strong>Submission date:</strong> 22 April 2026<br>
+    <strong>Project repository:</strong> https://github.com/[your-username]/reflectivity
+  </div>
+
+  <div class="footer-links">
+    <strong>Thank you for reviewing ReflectScan.</strong><br>
+    The prototype is the output of four days of design, implementation, and
+    pipeline validation on local road conditions. It is offered as an
+    honest proof-of-concept. The numbers are the numbers; the open source
+    is the open source; the calibration work is the calibration work. We
+    welcome the opportunity to do the Phase 0 calibration and Phase 1
+    pilot in partnership with NHAI.
+  </div>
+</div>
+
+</body>
+</html>
