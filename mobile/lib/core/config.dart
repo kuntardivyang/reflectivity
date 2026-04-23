@@ -2,7 +2,7 @@ class AppConfig {
   // LAN IP of the laptop running FastAPI. For an emulator use 10.0.2.2;
   // for a physical phone on the same Wi-Fi use the laptop IPv4 shown by
   // `hostname -I` on Linux or `ipconfig getifaddr en0` on macOS.
-  static const String apiBaseUrl = 'http://172.20.10.3:8000';
+  static const String apiBaseUrl = 'https://reflectivity-production.up.railway.app';
 
   // Retroreflectivity thresholds (mcd/m²/lux)
   static const double rlSafeThreshold = 100.0;
