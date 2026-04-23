@@ -21,15 +21,18 @@ class BrightestPatchFinder {
   final int gridRows;
 
   /// Fraction of the frame height where scanning begins.
-  /// 0.45 skips the sky and most of the horizon for a dashboard mount.
+  /// 0.65 keeps the search band in the lower third of the frame so
+  /// upright pedestrians and oncoming headlights — bright but not
+  /// markings — fall outside the candidate region.
   final double topFraction;
 
   /// Fraction of the frame height where scanning ends (below bumper).
   final double bottomFraction;
 
-  /// Patch width as a fraction of frame width. Kept moderate (0.25) so
-  /// the box is large enough to average out noise but narrow enough to
-  /// isolate a single marking from its surroundings.
+  /// Patch width as a fraction of frame width. Markings are linear and
+  /// horizontal in dashboard view, so the patch is wider than tall.
+  /// A wider/shorter shape down-weights vertical bright objects (people,
+  /// poles) and up-weights horizontal stripes (lane lines, zebras).
   final double patchWidthFraction;
 
   /// Patch height as a fraction of frame height.
@@ -38,10 +41,10 @@ class BrightestPatchFinder {
   const BrightestPatchFinder({
     this.gridCols = 5,
     this.gridRows = 3,
-    this.topFraction = 0.45,
+    this.topFraction = 0.65,
     this.bottomFraction = 0.95,
-    this.patchWidthFraction = 0.22,
-    this.patchHeightFraction = 0.18,
+    this.patchWidthFraction = 0.32,
+    this.patchHeightFraction = 0.10,
   });
 
   /// Return the ROI with the highest mean Y-plane luminance within the
@@ -72,6 +75,18 @@ class BrightestPatchFinder {
         final box = RoiBox(x, y, patchW, patchH);
         final pixels = analyzer.samplePixels(frame, box);
         if (pixels.isEmpty) continue;
+
+        // Reject patches dominated by clipped (saturated) pixels.
+        // Streetlights, headlights, and the sun produce Y=255 across
+        // most of the patch; a road marking under flash is bright but
+        // rarely fully clipped. Using > 30 % saturated as the cut-off
+        // keeps real markings while throwing away light sources.
+        int saturated = 0;
+        for (final p in pixels) {
+          if (p >= 250) saturated++;
+        }
+        if (saturated > pixels.length * 0.3) continue;
+
         final lum = analyzer.calibrator.meanLuminance(pixels);
         if (lum > bestLum) {
           bestLum = lum;
