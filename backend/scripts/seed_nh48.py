@@ -1,10 +1,18 @@
 """
-Seed the database with realistic NH-48 (Delhi-Mumbai) demo data.
+Seed the database with realistic Ahmedabad-area demo data.
+
+The route follows the NH-48 corridor through and around Ahmedabad — the
+same area where the prototype's pipeline-validation drive was conducted
+on 22 April 2026 (test point ~23.0969 N, 72.5601 E). Plotting demo data
+here means the dashboard the judges open shows segments around the same
+neighbourhood as the screenshots, instead of an unrelated stretch
+1000 km away.
 
 Generates:
   - 1 survey session
-  - ~500 measurements spanning Delhi → Mumbai waypoints
-  - ~100 aggregated highway segments
+  - ~520 measurements along the SG Highway / Sardar Patel Ring Road /
+    NH-48 corridor entering and exiting Ahmedabad
+  - ~100 aggregated 100-m segments
   - Alerts for all WARNING and CRITICAL segments
 
 Usage: python -m scripts.seed_nh48
@@ -23,21 +31,25 @@ from db.models import Session as SurveySession
 from db.session import SessionLocal
 
 
-# Approximate NH-48 waypoints Delhi → Mumbai (lng, lat)
-NH48_WAYPOINTS = [
-    (77.2090, 28.6139),  # Delhi
-    (77.0266, 28.4595),  # Gurgaon
-    (76.9600, 28.4000),
-    (76.5000, 27.9000),
-    (75.7873, 26.9124),  # Jaipur
-    (74.6399, 26.4499),  # Ajmer
-    (73.7125, 24.5854),  # Udaipur
-    (73.0000, 23.5000),
-    (72.5714, 23.0225),  # Ahmedabad
-    (73.1812, 22.3072),  # Vadodara
-    (72.8311, 21.1702),  # Surat
-    (72.9000, 20.0000),
-    (72.8777, 19.0760),  # Mumbai
+# Ahmedabad corridor waypoints (lng, lat) — a plausible patrol route along
+# NH-48 and SG Highway through Ahmedabad city. The route deliberately
+# passes through ~23.097 N / 72.560 E — the prototype test location near
+# Sabarmati / Naranpura — so screenshots and dashboard line up.
+AHMEDABAD_WAYPOINTS = [
+    (72.6369, 23.2156),  # Gandhinagar (north end of corridor)
+    (72.6160, 23.1820),  # Adalaj
+    (72.5950, 23.1500),  # Chandkheda
+    (72.5800, 23.1200),  # Motera
+    (72.5700, 23.1050),  # Sabarmati Riverfront north
+    (72.5601, 23.0969),  # Naranpura / Sabarmati  ← prototype test point
+    (72.5550, 23.0820),  # Vijay Char Rasta
+    (72.5500, 23.0600),  # Navrangpura
+    (72.5450, 23.0400),  # Ashram Road / Town Hall
+    (72.5500, 23.0200),  # Maninagar
+    (72.5650, 23.0000),  # Vatva
+    (72.5800, 22.9700),  # Aslali (NH-48 outbound)
+    (72.6000, 22.9300),  # Bareja
+    (72.6300, 22.8800),  # Kheda district approach
 ]
 
 
@@ -55,14 +67,21 @@ def interpolate_points(waypoints: list[tuple[float, float]], n_per_segment: int 
 
 
 def random_rl() -> float:
-    """Generate a realistic RL distribution: mostly safe, some warning, few critical."""
+    """Generate a realistic RL distribution: mostly safe, some warning, few critical.
+
+    Distribution chosen so that after 100-m segment averaging the dashboard
+    consistently shows a handful of CRITICAL (red) and WARNING (amber)
+    segments mixed into a mostly SAFE corridor — reflects what an
+    operational NH actually looks like and gives the alert feed something
+    to display for the demo.
+    """
     r = random.random()
-    if r < 0.65:
-        return random.uniform(100, 250)     # SAFE
-    elif r < 0.90:
-        return random.uniform(54, 100)      # WARNING
+    if r < 0.55:
+        return random.uniform(110, 250)     # SAFE
+    elif r < 0.80:
+        return random.uniform(56, 100)      # WARNING
     else:
-        return random.uniform(20, 54)       # CRITICAL
+        return random.uniform(15, 50)       # CRITICAL
 
 
 def classify(rl: float) -> str:
@@ -84,15 +103,15 @@ def seed(db: Session) -> None:
     session = SurveySession(
         id=uuid.uuid4(),
         vehicle_id="NHAI-PATROL-042",
-        surveyor="Demo Driver",
+        surveyor="Demo Driver — Ahmedabad RO",
         highway="NH-48",
         started_at=datetime.now(timezone.utc) - timedelta(hours=8),
         ended_at=datetime.now(timezone.utc) - timedelta(hours=1),
     )
     db.add(session)
 
-    print("Generating measurement points...")
-    points = interpolate_points(NH48_WAYPOINTS, n_per_segment=40)
+    print("Generating measurement points along Ahmedabad NH-48 corridor...")
+    points = interpolate_points(AHMEDABAD_WAYPOINTS, n_per_segment=40)
     now = datetime.now(timezone.utc)
 
     measurements = []
@@ -104,7 +123,7 @@ def seed(db: Session) -> None:
             location=from_shape(Point(lng, lat), srid=4326),
             rl_value=rl,
             status=classify(rl),
-            speed_kmh=random.uniform(60, 90),
+            speed_kmh=random.uniform(35, 65),
             captured_at=now - timedelta(minutes=len(points) - i),
         )
         measurements.append(m)
@@ -137,17 +156,19 @@ def seed(db: Session) -> None:
     alerts = []
     for seg in segments:
         if seg.status in ("WARNING", "CRITICAL"):
+            anchor = points[segments.index(seg) * chunk_size]
             alerts.append(Alert(
                 segment_id=seg.id,
                 highway=seg.highway,
                 rl_value=seg.rl_avg,
                 status=seg.status,
-                location=from_shape(Point(points[segments.index(seg) * chunk_size]), srid=4326),
+                location=from_shape(Point(anchor[0], anchor[1]), srid=4326),
             ))
     db.add_all(alerts)
 
     db.commit()
     print(f"✓ Seeded {len(measurements)} measurements, {len(segments)} segments, {len(alerts)} alerts")
+    print(f"✓ Route centred on Ahmedabad — open dashboard at http://localhost:3000 to view")
 
 
 if __name__ == "__main__":

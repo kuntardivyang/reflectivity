@@ -4,10 +4,12 @@ import { MapContainer, TileLayer, GeoJSON, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import { useMemo } from 'react';
 
-// Default to Delhi-Mumbai NH-48 corridor mid-point. Real surveys will
-// recentre the map on the bounding box of returned segments.
-const DEFAULT_CENTER = [23.5, 76.0];
-const DEFAULT_ZOOM = 6;
+// Default centre on Ahmedabad NH-48 corridor — same area as the
+// pipeline-validation drive, so the map opens populated with the seed
+// data instead of showing empty ocean. Real surveys will recentre the
+// map on the bounding box of returned segments.
+const DEFAULT_CENTER = [23.05, 72.58];
+const DEFAULT_ZOOM = 11;
 
 const STATUS_COLORS = {
   SAFE:     '#22c55e',
