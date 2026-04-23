@@ -138,11 +138,7 @@
   }
 
   .cover {
-    height: 262mm;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    padding: 10mm 0 0 0;
+    padding: 4mm 0 0 0;
   }
 
   .cover-header {
@@ -157,56 +153,62 @@
   }
 
   .cover-body h1 {
-    font-size: 42pt;
+    font-size: 34pt;
     color: #1e40af;
-    margin-bottom: 6pt;
+    margin-bottom: 4pt;
   }
   .cover-body .subtitle {
-    font-size: 14pt;
+    font-size: 12pt;
     color: #475569;
     font-weight: 400;
-    margin-bottom: 28pt;
+    margin-bottom: 14pt;
   }
+  .cover-body h3 {
+    margin: 10pt 0 4pt 0;
+    font-size: 11pt;
+  }
+  .cover-body ul { margin: 2pt 0 4pt 0; padding-left: 16pt; }
+  .cover-body ul li { margin-bottom: 1pt; font-size: 9.5pt; }
 
   .cover-hero {
     background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
     color: white;
-    padding: 18pt 22pt;
+    padding: 12pt 16pt;
     border-radius: 6pt;
-    margin: 14pt 0;
+    margin: 10pt 0;
   }
   .cover-hero h2 {
     color: white;
     border-bottom: none;
-    font-size: 18pt;
-    margin-bottom: 6pt;
+    font-size: 14pt;
+    margin-bottom: 4pt;
     padding: 0;
   }
   .cover-hero p {
-    font-size: 12pt;
+    font-size: 10pt;
     color: #dbeafe;
     margin: 0;
-    line-height: 1.45;
+    line-height: 1.4;
   }
 
   .stats {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr 1fr;
-    gap: 8pt;
-    margin: 16pt 0;
+    gap: 6pt;
+    margin: 10pt 0;
   }
   .stat {
     background: #f1f5f9;
-    padding: 10pt 12pt;
+    padding: 7pt 9pt;
     border-radius: 4pt;
     border: 0.5pt solid #e2e8f0;
   }
   .stat .num {
-    font-size: 20pt;
+    font-size: 16pt;
     font-weight: 700;
     color: #1e40af;
     line-height: 1;
-    margin-bottom: 4pt;
+    margin-bottom: 3pt;
   }
   .stat .lbl {
     font-size: 8.5pt;
@@ -332,18 +334,23 @@
   .disclaimer-box {
     background: #fffbeb;
     border: 1pt solid #fbbf24;
-    padding: 9pt 12pt;
+    padding: 7pt 10pt;
     border-radius: 4pt;
     margin: 8pt 0;
-    font-size: 9.5pt;
+    font-size: 9pt;
   }
   .disclaimer-box .lbl {
-    font-size: 8pt;
+    font-size: 7.5pt;
     font-weight: 700;
     letter-spacing: 0.5pt;
     text-transform: uppercase;
     color: #92400e;
-    margin-bottom: 3pt;
+    margin-bottom: 2pt;
+  }
+  .author-box {
+    font-size: 8.5pt;
+    padding: 8pt 10pt;
+    margin-top: 8pt;
   }
 
   /* Prevent awkward breaks */
@@ -385,10 +392,12 @@
             ₹80 Lakh – ₹1.5 Crore specialized retroreflectivity vehicles with a
             smartphone workflow mounted on existing patrol fleets.
             Physics-derived approach (distinct from pure ML regression).
-            Offline-first data pipeline. End-to-end prototype exercised on local
-            road drives in Ahmedabad on 22 April 2026 for pipeline validation;
-            RL calibration against IRC-standard instruments is scheduled as a
-            Phase 1 next step.
+            Offline-first data pipeline. End-to-end prototype exercised on
+            local roads in Ahmedabad on 22 April 2026 with the phone secured
+            on a two-wheeler mobile-phone stand, for pipeline validation;
+            four-wheeler patrol-vehicle testing at highway speed and RL
+            calibration against IRC-standard instruments are scheduled as
+            Phase 1 next steps.
           </p>
         </div>
 
@@ -414,7 +423,7 @@
         <h3>What this submission contains</h3>
         <ul>
           <li><strong>Prototype software:</strong> Android app (Flutter) + FastAPI + PostGIS backend, end-to-end data pipeline working offline and online.</li>
-          <li><strong>Pipeline-validation drive:</strong> 82 GPS-tagged captures exercising the camera → flash → classification → offline storage path on <em>local road conditions</em> in Ahmedabad.</li>
+          <li><strong>Pipeline-validation ride:</strong> 82 GPS-tagged captures collected with the phone secured on a two-wheeler handlebar mobile-phone stand in Ahmedabad, exercising the camera → flash → classification → offline storage path on real road surfaces.</li>
           <li><strong>Physics-based RL formulation</strong> documented step-by-step; correctness depends on subsequent calibration work.</li>
           <li><strong>Validation roadmap:</strong> controlled testing plan against a handheld retroreflectometer (IRC 67 / IRC 35), not yet executed.</li>
           <li><strong>Public GitHub repository</strong> with full source, 51 passing tests, and deployment documentation.</li>
@@ -422,24 +431,23 @@
 
         <div class="disclaimer-box">
           <div class="lbl">Maturity disclaimer</div>
-          ReflectScan is a hackathon prototype. The present document describes
+          ReflectScan is a hackathon prototype. This document describes the
           system design, an end-to-end software pipeline, and a pipeline-validation
-          drive. <strong>It does not claim accuracy-validated or IRC-certified RL
-          measurements.</strong> Accuracy calibration and benchmarking against
-          standard instruments are identified as the first items in the proposed
-          NHAI pilot. See "Prototype Testing &amp; Validation Scope" (page 7) and
-          "Validation Plan &amp; Next Steps" (page 10).
+          ride (two-wheeler with mobile-phone stand).
+          <strong>It does not claim accuracy-validated or IRC-certified RL measurements.</strong>
+          Calibration against standard instruments is the first item in the
+          proposed NHAI pilot — see pages 7 and 10.
         </div>
       </div>
     </div>
 
     <div class="author-box">
-      <strong>Team Leader:</strong> [Your Name]<br>
-      <strong>Email:</strong> [your-email]<br>
-      <strong>Mobile:</strong> [your-number]<br>
-      <strong>Team size:</strong> 2 (1 developer + 1 ML / content)<br>
-      <strong>Repository:</strong> https://github.com/[your-username]/reflectivity<br>
-      <strong>Demo video:</strong> [YouTube unlisted link]
+      <strong>Team Leader:</strong> Divyang Kuntar<br>
+      <strong>Email:</strong> divyangkuntar@gmail.com<br>
+      <strong>Mobile:</strong> 7016509214<br>
+      <strong>Team size:</strong> 2<br>
+      <strong>Repository:</strong> https://github.com/kuntardivyang/reflectivity<br>
+      <strong>Screenshots &amp; demo material:</strong> https://drive.google.com/drive/folders/1xpssEgShkJ3bRBdnN1gJgEUiT1i-ei5d
     </div>
   </div>
 </div>
@@ -574,7 +582,7 @@
                                 │
                                 ▼
 ┌────────────────────────────────────────────────────────────────────────┐
-│  LAYER 3 — DASHBOARD  (Next.js + Mapbox GL + deck.gl)                  │
+│  LAYER 3 — DASHBOARD  (Next.js + Leaflet + react-leaflet)               │
 │                                                                        │
 │   Live map:  green / yellow / red / grey highway segments              │
 │   Alert feed:  chronological, filterable by division                   │
@@ -689,7 +697,7 @@ R_L  = (ΔL / E) × 1000</pre>
 
 <!-- ───────────────────────────── PAGE 5 — INNOVATION ───────────────────────────── -->
 <div class="page">
-  <div class="section-hero">Innovation <span class="criteria-badge">30 MARKS</span></div>
+  <div class="section-hero">Innovation</div>
   <h2>What Distinguishes ReflectScan</h2>
 
   <h3>Four design contributions</h3>
@@ -771,7 +779,7 @@ R_L  = (ΔL / E) × 1000</pre>
 
 <!-- ───────────────────────────── PAGE 6 — FEASIBILITY ───────────────────────────── -->
 <div class="page">
-  <div class="section-hero">Feasibility <span class="criteria-badge">30 MARKS</span></div>
+  <div class="section-hero">Feasibility</div>
   <h2>What Is Built, and the Limits of What Has Been Tested</h2>
 
   <p>This is a working prototype, not a certified product. Below: what is complete, what is in progress, and what remains to be validated.</p>
@@ -793,9 +801,9 @@ R_L  = (ΔL / E) × 1000</pre>
         <td>24 unit tests passing; APK installed and exercised on a real Android device</td>
       </tr>
       <tr>
-        <td>End-to-end pipeline drive</td>
+        <td>End-to-end pipeline test ride</td>
         <td><span class="pill pill-blue">PIPELINE EXERCISED</span></td>
-        <td>82 GPS-tagged captures on 22 April 2026, Ahmedabad local roads (pipeline validation only; see next section)</td>
+        <td>82 GPS-tagged captures from a two-wheeler with mobile-phone stand, 22 April 2026, Ahmedabad local roads (pipeline validation only; see next section)</td>
       </tr>
       <tr>
         <td>RL accuracy vs IRC instrument</td>
@@ -808,9 +816,9 @@ R_L  = (ΔL / E) × 1000</pre>
         <td>Stock COCO weights loaded as baseline; IDD + Roboflow fine-tune planned</td>
       </tr>
       <tr>
-        <td>Dashboard (Next.js + Mapbox)</td>
-        <td><span class="pill pill-yellow">IN PROGRESS</span></td>
-        <td>GeoJSON contract stable; map + KPI layout being implemented</td>
+        <td>Dashboard (Next.js + Leaflet)</td>
+        <td><span class="pill pill-green">CODE COMPLETE</span></td>
+        <td>Next.js + Leaflet dashboard built and serving; map, KPI panel, and alert feed operational (HTTP 200 verified, 23 April 2026)</td>
       </tr>
       <tr>
         <td>Documentation</td>
@@ -893,8 +901,8 @@ R_L  = (ΔL / E) × 1000</pre>
   <h3>What has been tested</h3>
   <ul>
     <li><strong>Code-level tests.</strong> 27 backend pytest tests and 24 mobile Dart unit tests execute on every build; all passing at time of submission.</li>
-    <li><strong>Offline data-capture pipeline.</strong> On 22 April 2026, the app was installed on a physical Android device, mounted inside a vehicle, and run on <em>local road conditions in Ahmedabad</em> for approximately 14 minutes. The exercise produced <strong>82 GPS-tagged captures</strong> that were written to the on-device SQLite store, confirming the camera, flash control, detection fallback, classification, and offline-persistence paths execute end-to-end.</li>
-    <li><strong>Error and edge-case handling.</strong> Torch failure breaker, GPS-delayed start, permission-denied flows, and missing-model fallback (brightest-patch heuristic) were all observed to behave as designed during the prototype drive.</li>
+    <li><strong>Offline data-capture pipeline.</strong> On 22 April 2026, the app was installed on a physical Android device, secured on a two-wheeler handlebar mobile-phone stand, and exercised on <em>local road conditions in Ahmedabad</em> for approximately 14 minutes. The exercise produced <strong>82 GPS-tagged captures</strong> that were written to the on-device SQLite store, confirming the camera, flash control, detection fallback, classification, and offline-persistence paths execute end-to-end. A four-wheeler / dashboard-mount drive at patrol cruise speed is the next test condition (see Validation Plan, page 10).</li>
+    <li><strong>Error and edge-case handling.</strong> Torch failure breaker, GPS-delayed start, permission-denied flows, and missing-model fallback (brightest-patch heuristic) were all observed to behave as designed during the two-wheeler prototype ride.</li>
   </ul>
 
   <h3>What has <em>not</em> been tested</h3>
@@ -943,7 +951,7 @@ R_L  = (ΔL / E) × 1000</pre>
 
 <!-- ───────────────────────────── PAGE 8 — SCALABILITY ───────────────────────────── -->
 <div class="page">
-  <div class="section-hero">Scalability &amp; Sustainability <span class="criteria-badge">20 MARKS</span></div>
+  <div class="section-hero">Scalability &amp; Sustainability</div>
   <h2>Designed to Scale, Subject to Validation</h2>
 
   <p>
@@ -1009,7 +1017,7 @@ R_L  = (ΔL / E) × 1000</pre>
   <ul>
     <li><strong>Edge:</strong> measurement runs on-device; backend sees ~100 bytes per point. Hypothetical 2 000 phones × 500 points/day ≈ <strong>100 MB/day</strong> total ingress.</li>
     <li><strong>Cloud:</strong> PostGIS with spatial partitioning; 14 crore points (India full coverage × 1 year) fits within a single managed Postgres instance. Not yet stress-tested; subject to load-testing during Phase 1.</li>
-    <li><strong>Dashboard:</strong> Mapbox vector-tile cache serves viewers from the CDN edge; read-path scales with CDN, not origin.</li>
+    <li><strong>Dashboard:</strong> OpenStreetMap tile CDN serves the base map; the Next.js app is stateless and can be scaled horizontally behind a load balancer.</li>
   </ul>
 
   <h3>Potential data re-use</h3>
@@ -1088,7 +1096,7 @@ R_L  = (ΔL / E) × 1000</pre>
     app runs a brightest-patch heuristic on a 5×3 grid across the lower 2/3
     of the frame. Under flash, retroreflective paint is typically much
     brighter than asphalt; the brightest patch tends to coincide with the
-    marking. This behaviour was observed in the prototype drive. Quantitative
+    marking. This behaviour was observed during the two-wheeler prototype ride. Quantitative
     characterisation of its accuracy across lighting conditions remains to be
     done.
   </div>
@@ -1194,9 +1202,14 @@ R_L  = (ΔL / E) × 1000</pre>
   </ul>
 
   <div class="callout-green">
-    <strong>Ask:</strong> pilot approval for one state and access to, or
-    introduction to, a regional office willing to co-locate the Phase 0
-    calibration exercise with an IRC-compliant reference instrument.
+    <strong>Next step we are looking for:</strong> We would welcome the
+    opportunity to demonstrate ReflectScan alongside an IRC-compliant
+    retroreflectometer at any NHAI site convenient to a regional office.
+    A single calibration session — at a time and location of NHAI's
+    choosing — would let us characterise measurement accuracy and share
+    the findings with NHAI at no cost. No formal commitment is needed
+    from NHAI at this stage; we are simply seeking guidance on whether
+    such a collaboration would be feasible.
   </div>
 </div>
 
@@ -1245,7 +1258,7 @@ R_L  = (ΔL / E) × 1000</pre>
 
   <h3>Dashboard reporting</h3>
   <ol>
-    <li><strong>Live map</strong> — colour-coded highway segments on Mapbox vector tiles</li>
+    <li><strong>Live map</strong> — colour-coded highway segments on OpenStreetMap (Leaflet)</li>
     <li><strong>Alert feed</strong> — chronological list of new CRITICAL segments with GPS, timestamp</li>
     <li><strong>KPI panel</strong> — % SAFE / WARNING / CRITICAL / UNCAL, coverage %, points captured this week</li>
     <li><strong>Export</strong> — CSV (raw segments) and PDF (executive summary per state / division)</li>
@@ -1299,8 +1312,8 @@ R_L  = (ΔL / E) × 1000</pre>
   <table>
     <thead><tr><th>Resource</th><th>Link</th></tr></thead>
     <tbody>
-      <tr><td>Public GitHub repository (full source)</td><td class="mono">https://github.com/[your-username]/reflectivity</td></tr>
-      <tr><td>Demo video (3-min YouTube, unlisted)</td><td class="mono">[YouTube link]</td></tr>
+      <tr><td>Public GitHub repository (full source)</td><td class="mono">https://github.com/kuntardivyang/reflectivity</td></tr>
+      <tr><td>Screenshots &amp; demo material (Google Drive)</td><td class="mono">https://drive.google.com/drive/folders/1xpssEgShkJ3bRBdnN1gJgEUiT1i-ei5d</td></tr>
       <tr><td>OpenAPI 3.1 spec (auto-generated)</td><td class="mono">/docs endpoint on a running backend</td></tr>
       <tr><td>Architecture document</td><td class="mono">/docs/architecture.md in repo</td></tr>
       <tr><td>Research citations</td><td class="mono">/docs/research_findings.md in repo</td></tr>
@@ -1330,7 +1343,7 @@ cd ../mobile && flutter test  # 24 passing in ~1 s</pre>
   <ul>
     <li><code>01_Proposal.pdf</code> — this document</li>
     <li><code>03_Prototype_Screenshots/</code> — DEMO MODE banner, live survey HUD, session history, session detail, UNCAL status</li>
-    <li><code>04_Pipeline_Validation_Drive/</code> — metadata for the 82-capture session collected on 22 April 2026, Ahmedabad local roads (pipeline-validation only; see page 7 for scope)</li>
+    <li><code>04_Pipeline_Validation_Ride/</code> — metadata for the 82-capture session collected from a two-wheeler with mobile-phone stand on 22 April 2026, Ahmedabad local roads (pipeline-validation only; see page 7 for scope)</li>
     <li><code>05_Architecture_Diagram.png</code> — high-resolution export of the Layer 1 / 2 / 3 diagram</li>
     <li><code>06_Cost_Comparison_Chart.png</code> — 5-year projected cost trajectory</li>
     <li><code>README.txt</code> — one-page index with every link</li>
@@ -1338,28 +1351,28 @@ cd ../mobile && flutter test  # 24 passing in ~1 s</pre>
 
   <h3>Evaluation-criteria map</h3>
   <table>
-    <thead><tr><th>NHAI criterion</th><th>Where addressed</th><th>Max</th></tr></thead>
+    <thead><tr><th>NHAI criterion</th><th>Where addressed</th></tr></thead>
     <tbody>
-      <tr><td>Innovation</td><td>Page 5 — four design contributions, head-to-head positioning</td><td>30</td></tr>
-      <tr><td>Feasibility</td><td>Pages 6 &amp; 7 — component status, pipeline-validation drive, validation scope, deployment roadmap</td><td>30</td></tr>
-      <tr><td>Scalability &amp; Sustainability</td><td>Page 8 — projected scale and cost trajectory, data re-use, sustainability</td><td>20</td></tr>
-      <tr><td>Presentation &amp; Documentation</td><td>This document + repo docs + OpenAPI spec + screenshots + field-drive metadata</td><td>20</td></tr>
+      <tr><td>Innovation</td><td>Page 5 — four design contributions, head-to-head positioning</td></tr>
+      <tr><td>Feasibility</td><td>Pages 6 &amp; 7 — component status, pipeline-validation walk, validation scope, deployment roadmap</td></tr>
+      <tr><td>Scalability &amp; Sustainability</td><td>Page 8 — projected scale and cost trajectory, data re-use, sustainability</td></tr>
+      <tr><td>Presentation &amp; Documentation</td><td>This document + repo docs + OpenAPI spec + screenshots + field-walk metadata</td></tr>
     </tbody>
   </table>
 
   <h3>Contact</h3>
   <div class="author-box">
-    <strong>Team Leader:</strong> [Your Name]<br>
-    <strong>Email:</strong> [your-email]<br>
-    <strong>Mobile:</strong> [your-number]<br>
-    <strong>Submission date:</strong> 22 April 2026<br>
-    <strong>Project repository:</strong> https://github.com/[your-username]/reflectivity
+    <strong>Team Leader:</strong> Divyang Kuntar<br>
+    <strong>Email:</strong> divyangkuntar@gmail.com<br>
+    <strong>Mobile:</strong> 7016509214<br>
+    <strong>Submission date:</strong> 23 April 2026<br>
+    <strong>Project repository:</strong> https://github.com/kuntardivyang/reflectivity
   </div>
 
   <div class="footer-links">
     <strong>Thank you for reviewing ReflectScan.</strong><br>
     The prototype is the output of four days of design, implementation, and
-    pipeline validation on local road conditions. It is offered as an
+    pipeline validation on local road conditions (two-wheeler with mobile-phone stand). It is offered as an
     honest proof-of-concept. The numbers are the numbers; the open source
     is the open source; the calibration work is the calibration work. We
     welcome the opportunity to do the Phase 0 calibration and Phase 1
